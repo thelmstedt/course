@@ -23,7 +23,6 @@ Library
                     , HUnit
                     , containers
                     , array
-                    , QuickCheck
 
   GHC-Options:      -Wall
                     -fno-warn-unused-imports
