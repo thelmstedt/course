@@ -8,7 +8,6 @@ module Course
 , module L03.State
 , module L03.StateT
 , module L04.ListZipper
-, module L04.Testing
 , module L05.Person
 , module L05.Parser
 , module L06.JsonValue
@@ -31,7 +30,6 @@ import L03.Misty
 import L03.State
 import L03.StateT
 import L04.ListZipper
-import L04.Testing hiding (tests)
 import L05.Person
 import L05.Parser
 import L06.JsonValue
