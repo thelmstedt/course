@@ -24,9 +24,6 @@ Library
                     , containers
                     , array
                     , QuickCheck
-                    , test-framework
-                    , test-framework-hunit
-                    , test-framework-quickcheck2
 
   GHC-Options:      -Wall
                     -fno-warn-unused-imports
