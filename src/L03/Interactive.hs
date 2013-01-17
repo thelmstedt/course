@@ -7,12 +7,13 @@ echo ::
   IO ()
 echo =
   vooid (untilM
-          (\c -> if c == 'q'
-                   then
-                     putStrLn "Bye!" >-
-                     return True
-                   else
-                     return False)
+          (\c ->
+            if c == 'q'
+              then
+                putStrLn "Bye!" >-
+                return True
+              else
+                return False)
           (putStr "Enter a character: " >-
            getChar >>- \c ->
            putStrLn "" >-
