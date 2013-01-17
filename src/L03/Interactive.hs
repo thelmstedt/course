@@ -3,6 +3,10 @@ module L03.Interactive where
 import L03.Fuunctor
 import L03.Moonad
 
+-- convert to upper
+-- reverse file
+-- encode URL
+
 echo ::
   IO ()
 echo =
