@@ -7,9 +7,16 @@ echo ::
   IO ()
 echo =
   vooid (untilM
-          (== 'q')
-          (getChar >>- \c ->
-           print c >-
+          (\c -> if c == 'q'
+                   then
+                     putStrLn "Bye!" >-
+                     return True
+                   else
+                     return False)
+          (putStr "Enter a character: " >-
+           getChar >>- \c ->
+           putStrLn "" >-
+           putStrLn [c] >-
            reeturn c))
 
 vooid ::
@@ -40,12 +47,13 @@ vooid =
 -- | Runs an action until a result of that action satisfies a given predicate.
 untilM ::
   Moonad m =>
-  (a -> Bool) -- ^ The predicate to satisfy to stop running the action.
+  (a -> m Bool) -- ^ The predicate to satisfy to stop running the action.
   -> m a -- ^ The action to run until the predicate satisfies.
   -> m a
 untilM p a =
   a >>- \r ->
-  if p r
+  p r >>- \q ->
+  if q
     then
       reeturn r
     else
