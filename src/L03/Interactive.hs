@@ -2,10 +2,45 @@ module L03.Interactive where
 
 import L03.Fuunctor
 import L03.Moonad
+import Data.List(find)
+
+data Op =
+  Op
+    Char -- keyboard entry
+    String -- description
+    (IO ()) -- program
 
 -- convert to upper
 -- reverse file
 -- encode URL
+interactive ::
+  IO ()
+interactive =
+  let ops = [
+              Op 'c' "Convert a string to upper-case" (print "convert")
+            , Op 'r' "Reverse a file" (print "reverse")
+            , Op 'e' "Encode a URL" (print "encode")
+            ]
+  in vooid (untilM
+             (\c ->
+               if c == 'q'
+                 then
+                   putStrLn "Bye!" >-
+                   reeturn True
+                 else
+                   reeturn False)
+             (putStrLn "Select: " >-
+              traaverse (\(Op c s _) ->
+                putStr [c] >-
+                putStr ". " >-
+                putStrLn s) ops >-
+              putStrLn "q. Quit" >-
+              getChar >>- \c ->
+              let o = find (\(Op c' _ _) -> c' == c) ops
+                  r = case o of
+                        Nothing -> id
+                        Just (Op _ _ q) -> (q >-)
+              in r (return c)))
 
 echo ::
   IO ()
