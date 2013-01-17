@@ -11,9 +11,9 @@ echo =
             if c == 'q'
               then
                 putStrLn "Bye!" >-
-                return True
+                reeturn True
               else
-                return False)
+                reeturn False)
           (putStr "Enter a character: " >-
            getChar >>- \c ->
            putStrLn "" >-
