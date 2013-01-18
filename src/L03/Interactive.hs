@@ -8,7 +8,7 @@ data Op =
   Op
     Char -- keyboard entry
     String -- description
-    (IO ()) -- program
+    (Maybe (IO ())) -- program
 
 -- convert to upper
 -- reverse file
@@ -17,9 +17,10 @@ interactive ::
   IO ()
 interactive =
   let ops = [
-              Op 'c' "Convert a string to upper-case" (print "convert")
-            , Op 'r' "Reverse a file" (print "reverse")
-            , Op 'e' "Encode a URL" (print "encode")
+              Op 'c' "Convert a string to upper-case" (Just (print "convert"))
+            , Op 'r' "Reverse a file" (Just (print "reverse"))
+            , Op 'e' "Encode a URL" (Just (print "encode"))
+            , Op 'q' "Quit" Nothing
             ]
   in vooid (untilM
              (\c ->
@@ -34,12 +35,13 @@ interactive =
                 putStr [c] >-
                 putStr ". " >-
                 putStrLn s) ops >-
-              putStrLn "q. Quit" >-
               getChar >>- \c ->
+              putStrLn "" >-
               let o = find (\(Op c' _ _) -> c' == c) ops
                   r = case o of
-                        Nothing -> id
-                        Just (Op _ _ q) -> (q >-)
+                        Nothing -> (putStrLn "Not a valid selection. Try again." >-)
+                        Just (Op _ _ (Just q)) -> (q >-)
+                        Just (Op _ _ Nothing) -> id
               in r (return c)))
 
 echo ::
