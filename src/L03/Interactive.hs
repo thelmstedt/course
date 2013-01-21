@@ -11,69 +11,81 @@ data Op =
     String -- ^ description
     (IO ()) -- ^ program
 
+-- Exercise 1
+-- * Ask the user to enter a string to convert to upper-case.
+-- * Convert the string to upper-case.
+-- * Print the upper-cased string to standard output.
+-- ~~~ getLine :: IO String -- an IO action that reads a string from standard input.
+-- ~~~ toUpper :: Char -> Char -- (Data.Char) converts a character to upper-case.
+-- ~~~ putStr :: String -> IO () -- Prints a string to standard output.
+-- ~~~ putStrLn :: String -> IO () -- Prints a string and then a new line to standard output.
+convertInteractive ::
+  IO ()
+convertInteractive =
+  putStr "Enter a String to upper-case: " >-
+  getLine >>- \l ->
+  putStrLn (map toUpper l) >-
+  putStrLn ""
+
+-- Exercise 2
+-- * Ask the user to enter a file name to reverse.
+-- * Ask the user to enter a file name to write the reversed file to.
+-- * Read the contents of the input file.
+-- * Reverse the contents of the input file.
+-- * Write the reversed contents to the output file.
+-- ~~~ getLine :: IO String -- an IO action that reads a string from standard input.
+-- ~~~ readFile :: FilePath -> IO String -- an IO action that reads contents of a file.
+-- ~~~ writeFile :: FilePath -> String -> IO String -- writes a string to a file.
+-- ~~~ reverse :: [a] -> [a] -- reverses a list.
+-- ~~~ putStr :: String -> IO () -- Prints a string to standard output.
+-- ~~~ putStrLn :: String -> IO () -- Prints a string and then a new line to standard output.
+reverseInteractive ::
+  IO ()
+reverseInteractive =
+  putStr "Enter a file name to reverse: " >-
+  getLine >>- \infile ->
+  putStr "Enter a file name to output: " >-
+  getLine >>- \outfile ->
+  readFile infile >>- \i ->
+  writeFile outfile (reverse i) >-
+  putStrLn ""
+
+-- Exercise 3
+-- * Ask the user to enter a string to url-encode.
+-- * Convert the string with a URL encoder.
+--   * For simplicity, encoding is defined as:
+--     - ' ' -> "%20"
+--     - '\t' -> "%09"
+--     - '"' -> "%22"
+--     - anything else is unchanged
+-- * Print the encoded URL to standard output.
+-- ~~~ toUpper :: Char -> Char -- (Data.Char) converts a character to upper-case.
+-- ~~~ putStr :: String -> IO () -- Prints a string to standard output.
+-- ~~~ putStrLn :: String -> IO () -- Prints a string and then a new line to standard output.
+encodeInteractive ::
+  IO ()
+encodeInteractive =
+  let encode ::
+        String
+        -> String
+      encode url =
+        url >>- \c -> case c of
+                        ' '  -> "%20"
+                        '\t' -> "%09"
+                        '"'  -> "%22"
+                        _    -> [c]
+  in putStr "Enter a URL to encode: " >-
+     getLine >>- \l ->
+     putStrLn (encode l) >-
+     putStrLn ""
+
 interactive ::
   IO ()
 interactive =
-  let -- Exercise 1
-      -- * Ask the user to enter a string to convert to upper-case.
-      -- * Convert the string to upper-case.
-      -- * Print the upper-cased string to standard output.
-      -- ~~~ getLine :: IO String -- an IO action that reads a string from standard input.
-      -- ~~~ toUpper :: Char -> Char -- (Data.Char) converts a character to upper-case.
-      -- ~~~ putStr :: String -> IO () -- Prints a string to standard output.
-      -- ~~~ putStrLn :: String -> IO () -- Prints a string and then a new line to standard output.
-      con = putStr "Enter a String to upper-case: " >-
-            getLine >>- \l ->
-            putStrLn (map toUpper l) >-
-            putStrLn ""
-      -- Exercise 2
-      -- * Ask the user to enter a file name to reverse.
-      -- * Ask the user to enter a file name to write the reversed file to.
-      -- * Read the contents of the input file.
-      -- * Reverse the contents of the input file.
-      -- * Write the reversed contents to the output file.
-      -- ~~~ getLine :: IO String -- an IO action that reads a string from standard input.
-      -- ~~~ readFile :: FilePath -> IO String -- an IO action that reads contents of a file.
-      -- ~~~ writeFile :: FilePath -> String -> IO String -- writes a string to a file.
-      -- ~~~ reverse :: [a] -> [a] -- reverses a list.
-      -- ~~~ putStr :: String -> IO () -- Prints a string to standard output.
-      -- ~~~ putStrLn :: String -> IO () -- Prints a string and then a new line to standard output.
-      rev = putStr "Enter a file name to reverse: " >-
-            getLine >>- \infile ->
-            putStr "Enter a file name to output: " >-
-            getLine >>- \outfile ->
-            readFile infile >>- \i ->
-            writeFile outfile (reverse i) >-
-            putStrLn ""
-      -- Exercise 3
-      -- * Ask the user to enter a string to url-encode.
-      -- * Convert the string with a URL encoder.
-      --   * For simplicity, encoding is defined as:
-      --     - ' ' -> "%20"
-      --     - '\t' -> "%09"
-      --     - '"' -> "%22"
-      --     - anything else is unchanged
-      -- * Print the encoded URL to standard output.
-      -- ~~~ toUpper :: Char -> Char -- (Data.Char) converts a character to upper-case.
-      -- ~~~ putStr :: String -> IO () -- Prints a string to standard output.
-      -- ~~~ putStrLn :: String -> IO () -- Prints a string and then a new line to standard output.
-      enc = let encode ::
-                  String
-                  -> String
-                encode url =
-                  url >>- \c -> case c of
-                                  ' '  -> "%20"
-                                  '\t' -> "%09"
-                                  '"'  -> "%22"
-                                  _    -> [c]
-            in putStr "Enter a URL to encode: " >-
-               getLine >>- \l ->
-               putStrLn (encode l) >-
-               putStrLn ""
-      ops = [
-              Op 'c' "Convert a string to upper-case" con
-            , Op 'r' "Reverse a file" rev
-            , Op 'e' "Encode a URL" enc
+  let ops = [
+              Op 'c' "Convert a string to upper-case" convertInteractive
+            , Op 'r' "Reverse a file" reverseInteractive
+            , Op 'e' "Encode a URL" encodeInteractive
             , Op 'q' "Quit" (return ())
             ]
   in vooid (untilM
