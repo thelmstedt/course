@@ -7,9 +7,9 @@ import Data.List(find)
 
 data Op =
   Op
-    Char -- keyboard entry
-    String -- description
-    (Maybe (IO ())) -- program
+    Char -- ^ keyboard entry
+    String -- ^ description
+    (Maybe (IO ())) -- ^ program
 
 -- convert to upper
 -- reverse file
@@ -17,10 +17,26 @@ data Op =
 interactive ::
   IO ()
 interactive =
-  let con = putStr "Enter a String to upper-case: " >-
+  let -- Exercise 1
+      -- * Ask the user to enter a string to convert to upper-case.
+      -- * Convert the string to upper-case.
+      -- * Print the upper-cased string to standard output.
+      -- ~~~ getLine :: IO String -- an IO action that reads a string from standard input.
+      -- ~~~ toUpper :: Char -> Char -- (Data.Char) converts a character to upper-case.
+      con = putStr "Enter a String to upper-case: " >-
             getLine >>- \l ->
             putStrLn (map toUpper l) >-
             putStrLn ""
+      -- Exercise 2
+      -- * Ask the user to enter a file name reverse.
+      -- * Ask the user to enter a file name to write the reversed file to.
+      -- * Read the contents of the input file.
+      -- * Reverse the contents of the input file.
+      -- * Write the reversed contents to the output file.
+      -- ~~~ getLine :: IO String -- an IO action that reads a string from standard input.
+      -- ~~~ readFile :: FilePath -> IO String -- an IO action that reads contents of a file.
+      -- ~~~ writeFile :: FilePath -> String -> IO String -- writes a string to a file.
+      -- ~~~ reverse :: [a] -> [a] -- reverses a list.
       rev = putStr "Enter a file name to reverse: " >-
             getLine >>- \infile ->
             putStr "Enter a file name to output: " >-
@@ -28,7 +44,20 @@ interactive =
             readFile infile >>- \i ->
             writeFile outfile (reverse i) >-
             putStrLn ""
-      enc = let encode url =
+      -- Exercise 3
+      -- * Ask the user to enter a string to url-encode.
+      -- * Convert the string with a URL encoder.
+      --   * For simplicity, encoding is defined as:
+      --     - ' ' -> "%20"
+      --     - '\t' -> "%09"
+      --     - '"' -> "%22"
+      --     - anything else is unchanged
+      -- * Print the encoded URL to standard output.
+      -- ~~~ toUpper :: Char -> Char -- (Data.Char) converts a character to upper-case.
+      enc = let encode ::
+                  String
+                  -> String
+                encode url =
                   url >>- \c -> case c of
                                   ' '  -> "%20"
                                   '\t' -> "%09"
@@ -66,6 +95,7 @@ interactive =
                         Just (Op _ _ Nothing) -> id
               in r (return c)))
 
+-- | Example program that uses IO to echo back characters that are entered by the user.
 echo ::
   IO ()
 echo =
@@ -83,6 +113,7 @@ echo =
            putStrLn [c] >-
            reeturn c))
 
+-- | Eliminates any value over which a functor is defined.
 vooid ::
   Fuunctor m =>
   m a
