@@ -2,6 +2,7 @@ module L03.Interactive where
 
 import L03.Fuunctor
 import L03.Moonad
+import Data.Char
 import Data.List(find)
 
 data Op =
@@ -16,10 +17,31 @@ data Op =
 interactive ::
   IO ()
 interactive =
-  let ops = [
-              Op 'c' "Convert a string to upper-case" (Just (print "convert"))
-            , Op 'r' "Reverse a file" (Just (print "reverse"))
-            , Op 'e' "Encode a URL" (Just (print "encode"))
+  let con = putStr "Enter a String to upper-case: " >-
+            getLine >>- \l ->
+            putStrLn (map toUpper l) >-
+            putStrLn ""
+      rev = putStr "Enter a file name to reverse: " >-
+            getLine >>- \infile ->
+            putStr "Enter a file name to output: " >-
+            getLine >>- \outfile ->
+            readFile infile >>- \i ->
+            writeFile outfile (reverse i) >-
+            putStrLn ""
+      enc = let encode url =
+                  url >>- \c -> case c of
+                                  ' '  -> "%20"
+                                  '\t' -> "%09"
+                                  '"'  -> "%22"
+                                  _    -> [c]
+            in putStr "Enter a URL to encode: " >-
+               getLine >>- \l ->
+               putStrLn (encode l) >-
+               putStrLn ""
+      ops = [
+              Op 'c' "Convert a string to upper-case" (Just con)
+            , Op 'r' "Reverse a file" (Just rev)
+            , Op 'e' "Encode a URL" (Just enc)
             , Op 'q' "Quit" Nothing
             ]
   in vooid (untilM
