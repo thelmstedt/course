@@ -25,7 +25,7 @@ interactive =
             putStrLn (map toUpper l) >-
             putStrLn ""
       -- Exercise 2
-      -- * Ask the user to enter a file name reverse.
+      -- * Ask the user to enter a file name to reverse.
       -- * Ask the user to enter a file name to write the reversed file to.
       -- * Read the contents of the input file.
       -- * Reverse the contents of the input file.
