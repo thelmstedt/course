@@ -11,9 +11,6 @@ data Op =
     String -- ^ description
     (Maybe (IO ())) -- ^ program
 
--- convert to upper
--- reverse file
--- encode URL
 interactive ::
   IO ()
 interactive =
