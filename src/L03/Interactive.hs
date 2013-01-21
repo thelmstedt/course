@@ -9,7 +9,7 @@ data Op =
   Op
     Char -- ^ keyboard entry
     String -- ^ description
-    (Maybe (IO ())) -- ^ program
+    (IO ()) -- ^ program
 
 interactive ::
   IO ()
@@ -65,10 +65,10 @@ interactive =
                putStrLn (encode l) >-
                putStrLn ""
       ops = [
-              Op 'c' "Convert a string to upper-case" (Just con)
-            , Op 'r' "Reverse a file" (Just rev)
-            , Op 'e' "Encode a URL" (Just enc)
-            , Op 'q' "Quit" Nothing
+              Op 'c' "Convert a string to upper-case" con
+            , Op 'r' "Reverse a file" rev
+            , Op 'e' "Encode a URL" enc
+            , Op 'q' "Quit" (return ())
             ]
   in vooid (untilM
              (\c ->
@@ -88,8 +88,7 @@ interactive =
               let o = find (\(Op c' _ _) -> c' == c) ops
                   r = case o of
                         Nothing -> (putStrLn "Not a valid selection. Try again." >-)
-                        Just (Op _ _ (Just q)) -> (q >-)
-                        Just (Op _ _ Nothing) -> id
+                        Just (Op _ _ k) -> (k >-)
               in r (return c)))
 
 -- | Example program that uses IO to echo back characters that are entered by the user.
