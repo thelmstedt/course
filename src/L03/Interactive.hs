@@ -20,6 +20,8 @@ interactive =
       -- * Print the upper-cased string to standard output.
       -- ~~~ getLine :: IO String -- an IO action that reads a string from standard input.
       -- ~~~ toUpper :: Char -> Char -- (Data.Char) converts a character to upper-case.
+      -- ~~~ putStr :: String -> IO () -- Prints a string to standard output.
+      -- ~~~ putStrLn :: String -> IO () -- Prints a string and then a new line to standard output.
       con = putStr "Enter a String to upper-case: " >-
             getLine >>- \l ->
             putStrLn (map toUpper l) >-
@@ -34,6 +36,8 @@ interactive =
       -- ~~~ readFile :: FilePath -> IO String -- an IO action that reads contents of a file.
       -- ~~~ writeFile :: FilePath -> String -> IO String -- writes a string to a file.
       -- ~~~ reverse :: [a] -> [a] -- reverses a list.
+      -- ~~~ putStr :: String -> IO () -- Prints a string to standard output.
+      -- ~~~ putStrLn :: String -> IO () -- Prints a string and then a new line to standard output.
       rev = putStr "Enter a file name to reverse: " >-
             getLine >>- \infile ->
             putStr "Enter a file name to output: " >-
@@ -51,6 +55,8 @@ interactive =
       --     - anything else is unchanged
       -- * Print the encoded URL to standard output.
       -- ~~~ toUpper :: Char -> Char -- (Data.Char) converts a character to upper-case.
+      -- ~~~ putStr :: String -> IO () -- Prints a string to standard output.
+      -- ~~~ putStrLn :: String -> IO () -- Prints a string and then a new line to standard output.
       enc = let encode ::
                   String
                   -> String
