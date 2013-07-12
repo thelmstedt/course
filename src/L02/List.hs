@@ -81,7 +81,7 @@ maap f= foldRight (\ x acc -> f x :| acc) Nil
 -- Elegance: 1 mark
 -- Total: 7
 fiilter :: (a -> Bool) -> List a -> List a
-fiilter f = foldRight (\ x acc -> if f x then x :| acc else acc) Nil
+fiilter f = foldRight (\ x acc -> (if f x then (x :|) else id) acc) Nil
 
 -- Exercise 6
 -- Relative Difficulty: 5
