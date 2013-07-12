@@ -126,7 +126,7 @@ seqf fs x= maap (\z -> z x) fs
 -- Elegance: 2.5 marks
 -- Total: 10
 rev :: List a -> List a
-rev = foldLeft (\acc x -> x :| acc) Nil
+rev = foldLeft (flip (:|)) Nil
 
 -- Exercise 10.1
 -- How to produce arbitrary instances of List
@@ -134,5 +134,3 @@ instance Arbitrary a => Arbitrary (List a) where
   arbitrary = fmap (foldr (:|) Nil) arbitrary
 
 -- END Exercises
-
-a = (1 :| 2 :| 3 :| 4 :| Nil)
