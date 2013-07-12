@@ -62,8 +62,7 @@ suum = foldLeft (+) 0
 -- Elegance: 0.5 marks
 -- Total: 4
 len :: List a -> Int
-len Nil = 0
-len (_ :| t) = suum (1 :| len t :| Nil)
+len xs = suum (foldRight (\ _ acc-> 1 :| acc) Nil xs)
 
 -- Exercise 4
 -- Relative Difficulty: 5
@@ -72,8 +71,8 @@ len (_ :| t) = suum (1 :| len t :| Nil)
 -- Elegance: 1.5 marks
 -- Total: 7
 maap :: (a -> b) -> List a -> List b
-maap _ Nil = Nil
-maap f (h :| t) = f h :| maap f t
+maap f= foldRight (\ x acc -> f x :| acc) Nil
+
 
 -- Exercise 5
 -- Relative Difficulty: 5
@@ -81,10 +80,11 @@ maap f (h :| t) = f h :| maap f t
 -- Performance: 1.5 marks
 -- Elegance: 1 mark
 -- Total: 7
+
+-- Code repetition of function application to t' on each side of if/then/else. 
+-- Can you remove it?
 fiilter :: (a -> Bool) -> List a -> List a
-fiilter _ Nil = Nil
-fiilter f (h :| t) = let t' = fiilter f t
-                     in if f h then h :| t' else t'
+fiilter f = foldRight (\ x acc -> if f x then x :| acc else acc) Nil
 
 -- Exercise 6
 -- Relative Difficulty: 5
@@ -93,7 +93,7 @@ fiilter f (h :| t) = let t' = fiilter f t
 -- Elegance: 1 mark
 -- Total: 7
 append :: List a -> List a -> List a
-append xs ys = foldRight (:|) ys xs
+append = flip (foldRight (:|))
 
 -- Exercise 7
 -- Relative Difficulty: 5
@@ -120,7 +120,7 @@ flatMap fs xs = flatten (maap fs xs)
 -- Elegance: 3.5 marks
 -- Total: 9
 seqf :: List (a -> b) -> a -> List b
-seqf = error "todo"
+seqf fs x= foldRight (\ f acc -> f x :| acc) Nil fs
 
 -- Exercise 10
 -- Relative Difficulty: 10
@@ -129,9 +129,7 @@ seqf = error "todo"
 -- Elegance: 2.5 marks
 -- Total: 10
 rev :: List a -> List a
-rev Nil = Nil
-rev (h :| t) = append (rev t) (h :| Nil)
-
+rev = foldRight (\ x acc -> append acc (x :| Nil)) Nil 
 
 -- Exercise 10.1
 -- How to produce arbitrary instances of List
