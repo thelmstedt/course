@@ -43,7 +43,7 @@ foldLeft f b (h :| t) = let b' = f b h in b' `seq` foldLeft f b' t
 -- Total: 3
 headOr :: List a -> a -> a
 headOr Nil x = x
-headOr (h :| t) x = h
+headOr (h :| _) _ = h
 
 
 -- Exercise 2
@@ -53,7 +53,7 @@ headOr (h :| t) x = h
 -- Elegance: 0.5 marks
 -- Total: 4
 suum :: List Int -> Int
-suum ints = foldLeft (+) 0 ints
+suum = foldLeft (+) 0
 
 -- Exercise 3
 -- Relative Difficulty: 2
@@ -63,7 +63,7 @@ suum ints = foldLeft (+) 0 ints
 -- Total: 4
 len :: List a -> Int
 len Nil = 0
-len (h :| t) = suum (1 :| (len t) :| Nil)
+len (_ :| t) = suum (1 :| len t :| Nil)
 
 -- Exercise 4
 -- Relative Difficulty: 5
@@ -73,7 +73,7 @@ len (h :| t) = suum (1 :| (len t) :| Nil)
 -- Total: 7
 maap :: (a -> b) -> List a -> List b
 maap _ Nil = Nil
-maap f (h :| t) = (f h) :| (maap f t)
+maap f (h :| t) = f h :| maap f t
 
 -- Exercise 5
 -- Relative Difficulty: 5
@@ -82,9 +82,9 @@ maap f (h :| t) = (f h) :| (maap f t)
 -- Elegance: 1 mark
 -- Total: 7
 fiilter :: (a -> Bool) -> List a -> List a
-fiilter f Nil = Nil
-fiilter f (h :| t) = let t' = (fiilter f t)
-                     in if f h then (h :| t') else t'
+fiilter _ Nil = Nil
+fiilter f (h :| t) = let t' = fiilter f t
+                     in if f h then h :| t' else t'
 
 -- Exercise 6
 -- Relative Difficulty: 5
@@ -102,7 +102,7 @@ append xs ys = foldRight (:|) ys xs
 -- Elegance: 1 mark
 -- Total: 7
 flatten :: List (List a) -> List a
-flatten xs = foldRight (append) Nil xs
+flatten = foldRight append Nil
 
 -- Exercise 8
 -- Relative Difficulty: 7
@@ -111,7 +111,7 @@ flatten xs = foldRight (append) Nil xs
 -- Elegance: 1.5 mark
 -- Total: 8
 flatMap :: (a -> List b) -> List a -> List b
-flatMap fs xs = flatten (maap (fs) xs)
+flatMap fs xs = flatten (maap fs xs)
 
 -- Exercise 9
 -- Relative Difficulty: 8
