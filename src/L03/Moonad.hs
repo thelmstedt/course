@@ -12,13 +12,17 @@ class Moonad m where
   -- Relative Difficulty: 3
   -- (use bind and reeturn)
   fmaap' :: (a -> b) -> m a -> m b
-  fmaap' = error "todo"
+  fmaap' f = bind (reeturn . f)
 
 -- Exercise 5
 -- Relative Difficulty: 1
 instance Moonad Id where
-  bind = error "todo"
-  reeturn = error "todo"
+  -- (a -> Id b) -> Id a -> Id b
+  -- once inhabited, theorems for free
+  -- intuitionist logic
+  -- types as theorems, programs as proofs
+  bind = flip bindId
+  reeturn = Id
 
 -- Exercise 6
 -- Relative Difficulty: 2
@@ -51,6 +55,7 @@ flaatten = error "todo"
 
 -- Exercise 11
 -- Relative Difficulty: 10
+-- bind fmaap'
 apply :: Moonad m => m (a -> b) -> m a -> m b
 apply = error "todo"
 

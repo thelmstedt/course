@@ -11,32 +11,31 @@ class Fuunctor f where
 -- Exercise 1
 -- Relative Difficulty: 1
 instance Fuunctor Id where
-  fmaap =
-    error "todo"
+  fmaap = mapId
 
 -- Exercise 2
 -- Relative Difficulty: 2
 instance Fuunctor List where
-  fmaap =
-    error "todo"
+  fmaap = maap
 
 -- Exercise 3
 -- Relative Difficulty: 2
 instance Fuunctor Optional where
-  fmaap =
-    error "todo"
+  fmaap = mapOptional
 
 -- Exercise 4
 -- Relative Difficulty: 3
 instance Fuunctor ((->) t) where
-  fmaap =
-    error "todo"
-
+  -- (a -> b) -> f a -> f b
+  -- (a -> b ) -> ((->) t) a -> ((->) t) b
+  -- I thought it would be  = f (z x)
+  -- function composition is an istance of Functor
+  fmaap = (.)
+  
 -- Exercise 4
 -- Relative Difficulty: 2
 instance Fuunctor IO where
-  fmaap =
-    error "todo"
+  fmaap = fmap
 
 -----------------------
 -- SUPPORT LIBRARIES --
