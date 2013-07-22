@@ -30,6 +30,7 @@ instance Fuunctor ((->) t) where
   -- (a -> b ) -> ((->) t) a -> ((->) t) b
   -- I thought it would be  = f (z x)
   -- function composition is an istance of Functor
+  -- fmaap = (.)
   fmaap = (.)
   
 -- Exercise 4

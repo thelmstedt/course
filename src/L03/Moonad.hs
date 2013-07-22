@@ -27,43 +27,55 @@ instance Moonad Id where
 -- Exercise 6
 -- Relative Difficulty: 2
 instance Moonad List where
-  bind = error "todo"
-  reeturn = error "todo"
+  bind = flatMap
+  reeturn = (:| Nil)
 
 -- Exercise 7
 -- Relative Difficulty: 2
 instance Moonad Optional where
-  bind = error "todo"
-  reeturn = error "todo"
+  bind = flip bindOptional
+  reeturn = Full
 
 -- Exercise 8
 -- Relative Difficulty: 3
 instance Moonad ((->) t) where
-  bind = error "todo"
-  reeturn = error "todo"
+  -- (a -> ((->) t) b)) -> ((->) t) a -> ((->) t) b
+  -- (a -> t -> b) -> (t -> a) -> t -> b
+  -- f                  g         x 
+  bind f g x = f (g x) x
+  reeturn = const
 
 -- Exercise 9
 -- Relative Difficulty: 2
 instance Moonad IO where
+  -- (a -> IO b) -> IO a -> IO b
   bind = error "todo"
   reeturn = error "todo"
 
 -- Exercise 10
 -- Relative Difficulty: 2
 flaatten :: Moonad m => m (m a) -> m a
-flaatten = error "todo"
+flaatten = bind id
+
+
+
+--  bind :: (a -> m b) -> m a -> m b
+--  reeturn :: a -> m a
+--  fmaap' :: (a -> b) -> m a -> m b
 
 -- Exercise 11
 -- Relative Difficulty: 10
 -- bind fmaap'
+
 apply :: Moonad m => m (a -> b) -> m a -> m b
-apply = error "todo"
+apply mf mx = bind (\x -> fmaap' x mx) mf
+--apply mf mx = bind (`fmaap'` mx) mf
 
 -- Exercise 12
 -- Relative Difficulty: 6
 -- (bonus: use apply + fmaap')
 lift2 :: Moonad m => (a -> b -> c) -> m a -> m b -> m c
-lift2 = error "todo"
+lift2 mf ma mb = undefined
 
 -- Exercise 13
 -- Relative Difficulty: 6
