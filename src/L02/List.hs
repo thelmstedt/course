@@ -9,15 +9,16 @@
 
 module L02.List where
 
-import Test.QuickCheck
+import Control.Applicative
+import L01.Optional
 
 -- BEGIN Helper functions and data types
 
 -- The custom list type
-data List t = Nil | t :| List t deriving Eq
+data List t = Nil | t :. List t deriving Eq
 
 -- Right-associative
-infixr 5 :|
+infixr 5 :.
 
 instance (Show t) => Show (List t) where
   show = show . foldRight (:) []
@@ -25,11 +26,11 @@ instance (Show t) => Show (List t) where
 -- functions over List that you may consider using
 foldRight :: (a -> b -> b) -> b -> List a -> b
 foldRight _ b Nil      = b
-foldRight f b (h :| t) = f h (foldRight f b t)
+foldRight f b (h :. t) = f h (foldRight f b t)
 
 foldLeft :: (b -> a -> b) -> b -> List a -> b
 foldLeft _ b Nil      = b
-foldLeft f b (h :| t) = let b' = f b h in b' `seq` foldLeft f b' t
+foldLeft f b (h :. t) = let b' = f b h in b' `seq` foldLeft f b' t
 
 -- END Helper functions and data types
 
@@ -41,9 +42,19 @@ foldLeft f b (h :| t) = let b' = f b h in b' `seq` foldLeft f b' t
 -- Performance: 0.5 mark
 -- Elegance: 0.5 marks
 -- Total: 3
+--
+-- | Returns the head of the list or the given default.
+--
+-- >>> headOr (1 :. 2 :. Nil) 3
+-- 1
+--
+-- >>> headOr Nil 3
+-- 3
+--
+-- prop> Nil `headOr` x == x
 headOr :: List a -> a -> a
 headOr Nil x = x
-headOr (h :| _) _ = h
+headOr (h :. _) _ = h
 
 
 -- Exercise 2
@@ -52,6 +63,13 @@ headOr (h :| _) _ = h
 -- Performance: 1 mark
 -- Elegance: 0.5 marks
 -- Total: 4
+--
+-- | Sum the elements of the list.
+--
+-- >>> suum (1 :. 2 :. 3 :. Nil)
+-- 6
+--
+-- prop> foldLeft (-) (suum x) x == 0
 suum :: List Int -> Int
 suum = foldLeft (+) 0
 
@@ -61,6 +79,13 @@ suum = foldLeft (+) 0
 -- Performance: 1 mark
 -- Elegance: 0.5 marks
 -- Total: 4
+--
+-- | Return the length of the list.
+--
+-- >>> len (1 :. 2 :. 3 :. Nil)
+-- 3
+--
+-- prop> suum (maap (const 1) x) == len x
 len :: List a -> Int
 len = foldLeft (\ x _ -> x+1) 0
 
@@ -70,8 +95,15 @@ len = foldLeft (\ x _ -> x+1) 0
 -- Performance: 1.0 mark
 -- Elegance: 1.5 marks
 -- Total: 7
+--
+-- | Map the given function on each element of the list.
+--
+-- >>> maap (+10) (1 :. 2 :. 3 :. Nil)
+-- [11,12,13]
+--
+-- prop> maap id x == x
 maap :: (a -> b) -> List a -> List b
-maap f= foldRight (\ x acc -> f x :| acc) Nil
+maap f= foldRight (\ x acc -> f x :. acc) Nil
 
 
 -- Exercise 5
@@ -80,8 +112,17 @@ maap f= foldRight (\ x acc -> f x :| acc) Nil
 -- Performance: 1.5 marks
 -- Elegance: 1 mark
 -- Total: 7
+--
+-- | Return elements satisfying the given predicate.
+--
+-- >>> fiilter even (1 :. 2 :. 3 :. 4 :. 5 :. Nil)
+-- [2,4]
+--
+-- prop> fiilter (const True) x == x
+--
+-- prop> fiilter (const False) x == Nil
 fiilter :: (a -> Bool) -> List a -> List a
-fiilter f = foldRight (\ x acc -> (if f x then (x :|) else id) acc) Nil
+fiilter f = foldRight (\ x acc -> (if f x then (x :.) else id) acc) Nil
 
 -- Exercise 6
 -- Relative Difficulty: 5
@@ -89,8 +130,17 @@ fiilter f = foldRight (\ x acc -> (if f x then (x :|) else id) acc) Nil
 -- Performance: 1.5 marks
 -- Elegance: 1 mark
 -- Total: 7
+--
+-- | Append two lists to a new list.
+--
+-- >>> append (1 :. 2 :. 3 :. Nil) (4 :. 5 :. 6 :. Nil)
+-- [1,2,3,4,5,6]
+--
+-- prop> (x `append` y) `append` z == x `append` (y `append` z)
+--
+-- prop> append x Nil == x
 append :: List a -> List a -> List a
-append = flip (foldRight (:|))
+append = flip (foldRight (:.))
 
 -- Exercise 7
 -- Relative Difficulty: 5
@@ -98,6 +148,13 @@ append = flip (foldRight (:|))
 -- Performance: 1.5 marks
 -- Elegance: 1 mark
 -- Total: 7
+--
+-- | Flatten a list of lists to a list.
+--
+-- >>> flatten ((1 :. 2 :. 3 :. Nil) :. (4 :. 5 :. 6 :. Nil) :. (7 :. 8 :. 9 :. Nil) :. Nil)
+-- [1,2,3,4,5,6,7,8,9]
+--
+-- prop> suum (maap len x) == len (flatten x)
 flatten :: List (List a) -> List a
 flatten = foldRight append Nil
 
@@ -107,6 +164,13 @@ flatten = foldRight append Nil
 -- Performance: 1.5 marks
 -- Elegance: 1.5 mark
 -- Total: 8
+--
+-- | Map a function then flatten to a list.
+--
+-- >>> flatMap (\x -> x :. x + 1 :. x + 2 :. Nil) (1 :. 2 :. 3 :. Nil)
+-- [1,2,3,2,3,4,3,4,5]
+--
+-- prop> flatMap id (x :: List (List Int)) == flatten x
 flatMap :: (a -> List b) -> List a -> List b
 flatMap fs xs = flatten (maap fs xs)
 
@@ -116,8 +180,13 @@ flatMap fs xs = flatten (maap fs xs)
 -- Performance: 2.0 marks
 -- Elegance: 3.5 marks
 -- Total: 9
-seqf :: List (a -> b) -> a -> List b
-seqf fs x= maap (\z -> z x) fs
+--
+-- | Apply a list of functions to a value to a list of results.
+--
+-- >> seqOptional (Full 1 :. Full 10 :. Nil)
+-- Full (1 :. 10 :. Nil)
+seqOptional  :: List (Optional a) -> Optional (List a)
+seqOptional = error "todo"
 
 -- Exercise 10
 -- Relative Difficulty: 10
@@ -125,12 +194,14 @@ seqf fs x= maap (\z -> z x) fs
 -- Performance: 2.5 marks
 -- Elegance: 2.5 marks
 -- Total: 10
+--
+-- | Reverse a list.
+--
+-- >> rev (1 :. 2 :. 3 :. Nil)
+-- 3 :. 2 :. 1 :. Nil
+--
+-- prop> (rev . rev) x == x
 rev :: List a -> List a
-rev = foldLeft (flip (:|)) Nil
-
--- Exercise 10.1
--- How to produce arbitrary instances of List
-instance Arbitrary a => Arbitrary (List a) where
-  arbitrary = fmap (foldr (:|) Nil) arbitrary
+rev = foldLeft (flip (:.)) Nil
 
 -- END Exercises
