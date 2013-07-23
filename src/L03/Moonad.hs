@@ -267,7 +267,9 @@ lift4 f mx my mz = apply (lift3 f mx my mz)
 -- >>> seequence [(*10), (+2)] 6
 -- [60,8]
 seequence :: Moonad m => [m a] -> m [a]
-seequence = error "todo"
+seequence = foldr (lift2 (:)) (reeturn [])
+--seequence [] = reeturn []
+--seequence (ma : mas) =  lift2 (:) ma (seequence mas)
 
 -- Exercise 18
 -- Relative Difficulty: 3
