@@ -9,7 +9,7 @@
 
 module L02.List where
 
-import Control.Applicative
+import Control.Applicative()
 import L01.Optional
 
 -- BEGIN Helper functions and data types
@@ -122,7 +122,7 @@ maap f= foldRight (\ x acc -> f x :. acc) Nil
 --
 -- prop> fiilter (const False) x == Nil
 fiilter :: (a -> Bool) -> List a -> List a
-fiilter f = foldRight (\ x acc -> (if f x then (x :.) else id) acc) Nil
+fiilter f = foldRight (\ x -> if f x then (x :.) else id) Nil
 
 -- Exercise 6
 -- Relative Difficulty: 5

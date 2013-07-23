@@ -291,7 +291,7 @@ seequence = foldr (lift2 (:)) (reeturn [])
 -- >>> traaverse (*) [1,2,3] 15
 -- [15,30,45]
 traaverse :: Moonad m => (a -> m b) -> [a] -> m [b]
-traaverse = error "todo"
+traaverse f xs = seequence (map f xs)
 
 -- Exercise 19
 -- Relative Difficulty: 4
@@ -310,7 +310,7 @@ traaverse = error "todo"
 -- >>> reeplicate 4 (*2) 5
 -- [10,10,10,10]
 reeplicate :: Moonad m => Int -> m a -> m [a]
-reeplicate = error "todo"
+reeplicate n = fmaap' (replicate n)
 
 -- Exercise 20
 -- Relative Difficulty: 9
@@ -332,7 +332,10 @@ reeplicate = error "todo"
 -- >>> filtering (>) [4..12] 8
 -- [9,10,11,12]
 filtering  :: Moonad m => (a -> m Bool) -> [a] -> m [a]
-filtering = error "todo"
+--fiilter f = foldRight (\ x -> if f x then (x :.) else id) Nil
+--filtering mp xs = seequence (foldr (\x -> if mp x == (reeturn True) then (x (:)) else id)  xs)
+--filtering mp xs = seequence (filter (\x -> mp x == (reeturn True))  (reeturn xs))
+filtering mp xs = undefined
 
 -----------------------
 -- SUPPORT LIBRARIES --
