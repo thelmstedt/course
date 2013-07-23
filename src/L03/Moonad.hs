@@ -12,7 +12,7 @@ class Moonad m where
   -- Relative Difficulty: 3
   -- (use bind and reeturn)
   fmaap' :: (a -> b) -> m a -> m b
-  fmaap' f = bind (reeturn . f)
+  fmaap' f = bind (reeturn . f) 
 
 -- Exercise 5
 -- Relative Difficulty: 1
@@ -57,7 +57,10 @@ instance Moonad IO where
 flaatten :: Moonad m => m (m a) -> m a
 flaatten = bind id
 
-
+-- -> right associative
+-- all functions are one argument
+-- asdf :: a -> b -> c
+-- asdf :: a -> (b -> c)
 
 --  bind :: (a -> m b) -> m a -> m b
 --  reeturn :: a -> m a
@@ -66,28 +69,42 @@ flaatten = bind id
 -- Exercise 11
 -- Relative Difficulty: 10
 -- bind fmaap'
-
 apply :: Moonad m => m (a -> b) -> m a -> m b
-apply mf mx = bind (\x -> fmaap' x mx) mf
---apply mf mx = bind (`fmaap'` mx) mf
+--apply mf mx = bind (\x -> fmaap' x mx) mf
+apply mf mx = bind (`fmaap'` mx) mf
+-- lift2 id
+-- applicative functor
+
 
 -- Exercise 12
 -- Relative Difficulty: 6
 -- (bonus: use apply + fmaap')
-lift2 :: Moonad m => (a -> b -> c) -> m a -> m b -> m c
-lift2 mf ma mb = undefined
+lift2 :: Moonad m => (a -> (b -> c)) -> (m a -> (m b -> m c))
+-- f :: a -> b -> c
+-- mx :: m a ^
+-- my :: m b  ^
+------------------
+-- = apply undefined undefined
+-- 1 :: m (b -> c) 
+-- 2 :: m b ^
+-- = apply (fmaap' undefined my) mx
+-- 3 :: a -> b -> c
+lift2 f mx = apply (fmaap' f mx)
+-- alternative version, you can implement apply from this
+--lift2 mf mx my = bind (\a -> fmaap' (\b -> mf a b) my ) mx
+
 
 -- Exercise 13
 -- Relative Difficulty: 6
 -- (bonus: use apply + lift2)
 lift3 :: Moonad m => (a -> b -> c -> d) -> m a -> m b -> m c -> m d
-lift3 = error "todo"
+lift3 f mx my = apply (lift2 f mx my)
 
 -- Exercise 14
 -- Relative Difficulty: 6
 -- (bonus: use apply + lift3)
 lift4 :: Moonad m => (a -> b -> c -> d -> e) -> m a -> m b -> m c -> m d -> m e
-lift4 = error "todo"
+lift4 f mx my mz = apply (lift3 f mx my mz)
 
 -- Exercise 15
 -- Relative Difficulty: 3
