@@ -332,10 +332,14 @@ reeplicate n = fmaap' (replicate n)
 -- >>> filtering (>) [4..12] 8
 -- [9,10,11,12]
 filtering  :: Moonad m => (a -> m Bool) -> [a] -> m [a]
---fiilter f = foldRight (\ x -> if f x then (x :.) else id) Nil
---filtering mp xs = seequence (foldr (\x -> if mp x == (reeturn True) then (x (:)) else id)  xs)
---filtering mp xs = seequence (filter (\x -> mp x == (reeturn True))  (reeturn xs))
-filtering mp xs = undefined
+filtering f xs = foldr (\x acc-> monadP f x acc) (reeturn []) (fmaap' reeturn xs)
+    
+monadP :: Moonad m => (a -> m Bool) -> m a -> m [a] ->  m [a]
+monadP f x xs = bind (\p -> if p then (lift2 (:)) x xs else xs) (bind f x)
+
+--asdf :: Moonad m => (a -> m Bool) -> m a -> m a -> m [a]
+--asdf = undefined
+--asdf f x xs = bind (\z -> if z then (x : xs) else xs) (f x)
 
 -----------------------
 -- SUPPORT LIBRARIES --
