@@ -10,6 +10,10 @@ import Data.Char
 import qualified Data.Set as S
 import qualified Data.Foldable as F
 
+
+data Hole = Hole
+Hole = undefined
+
 -- $setup
 -- >>> import Test.QuickCheck.Function
 -- >>> import Data.List(nub)
@@ -22,6 +26,11 @@ newtype State s a =
       -> (a, s)
   }
 
+--mapOptional :: (a -> b) -> Optional a -> Optional b
+--mapOptional _ Empty    = Empty
+--mapOptional f (Full a) = Full (f a)
+
+
 -- Exercise 1
 -- Relative Difficulty: 2
 --
@@ -30,8 +39,11 @@ newtype State s a =
 -- >>> runState (fmaap (+1) (reeturn 0)) 0
 -- (1,0)
 instance Fuunctor (State s) where
-  fmaap =
-    error "todo"
+  -- (a -> b) -> State s a -> State s b
+  --fmaap f (State x) = State (\s -> (f (fst (x s)), s))
+  fmaap f (State x) = State $ \s -> let (state, _) = x s
+                                    in (f state, s)
+
 
 -- Exercise 2
 -- Relative Difficulty: 3
@@ -45,22 +57,21 @@ instance Fuunctor (State s) where
 -- >>> runState (bind (const $ put 2) (put 1)) 0
 -- ((),2)
 instance Moonad (State s) where
-  bind =
-    error "todo"
-  reeturn =
-    error "todo"
+  --bind :: (a -> m b) -> m a -> m b
+  --reeturn :: a -> m a
+
+  -- x :: s -> (a, s)
+  bind f (State x) = State $ \s -> runState (f (fst (x s))) s
+  reeturn x = State $ \s -> (x, s)
+
 
 -- Exercise 3
 -- Relative Difficulty: 1
 -- | Run the `State` seeded with `s` and retrieve the resulting state.
 --
 -- prop> \(Fun _ f) -> exec (State f) s == snd (runState (State f) s)
-exec ::
-  State s a
-  -> s
-  -> s
-exec =
-  error "todo"
+exec :: State s a -> s -> s
+exec (State a) x = snd (a x)
 
 -- Exercise 4
 -- Relative Difficulty: 1
@@ -68,12 +79,8 @@ exec =
 -- | Run the `State` seeded with `s` and retrieve the resulting value.
 --
 -- prop> \(Fun _ f) -> eval (State f) s == fst (runState (State f) s)
-eval ::
-  State s a
-  -> s
-  -> a
-eval =
-  error "todo"
+eval :: State s a -> s -> a
+eval (State s) a = fst (s a)
 
 -- Exercise 5
 -- Relative Difficulty: 2
@@ -82,10 +89,8 @@ eval =
 --
 -- >>> runState get 0
 -- (0,0)
-get ::
-  State s s
-get =
-  error "todo"
+get :: State s s
+get = State $ \s -> (s, s)
 
 -- Exercise 6
 -- Relative Difficulty: 2
@@ -94,11 +99,8 @@ get =
 --
 -- >>> runState (put 1) 0
 -- ((),1)
-put ::
-  s
-  -> State s ()
-put =
-  error "todo"
+put :: s -> State s ()
+put x = State $ \s -> ((), x)
 
 -- Exercise 7
 -- Relative Difficulty: 5
@@ -117,13 +119,9 @@ put =
 --
 -- >>> let p x = bind (\s -> bind (const $ reeturn (x == 'i')) $ put (1+s)) get in runState (findM p $ foldr (:.) Nil ['a'..'h']) 0
 -- (Empty,8)
-findM ::
-  Moonad f =>
-  (a -> f Bool)
-  -> List a
-  -> f (Optional a)
-findM =
-  error "todo"
+findM :: Moonad f => (a -> f Bool) -> List a -> f (Optional a)
+findM f xs = undefined
+
 
 -- Exercise 8
 -- Relative Difficulty: 4
@@ -133,12 +131,8 @@ findM =
 -- ~~~ Use findM and State with a Data.Set#Set. ~~~
 --
 -- prop> case firstRepeat xs of Empty -> let xs' = foldRight (:) [] xs in nub xs' == xs'; Full x -> len (fiilter (== x) xs) > 1
-firstRepeat ::
-  Ord a =>
-  List a
-  -> Optional a
-firstRepeat =
-  error "todo"
+firstRepeat :: Ord a => List a -> Optional a
+firstRepeat = error "todo"
 
 -- Exercise 9
 -- Relative Difficulty: 5
