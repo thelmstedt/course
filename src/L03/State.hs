@@ -41,8 +41,8 @@ newtype State s a =
 instance Fuunctor (State s) where
   -- (a -> b) -> State s a -> State s b
   --fmaap f (State x) = State (\s -> (f (fst (x s)), s))
-  fmaap f (State x) = State $ \s -> let (state, _) = x s
-                                    in (f state, s)
+  fmaap f (State x) = State $ \s -> let (v, _) = x s
+                                    in (f v, s)
 
 
 -- Exercise 2
@@ -61,7 +61,8 @@ instance Moonad (State s) where
   --reeturn :: a -> m a
 
   -- x :: s -> (a, s)
-  bind f (State x) = State $ \s -> runState (f (fst (x s))) s
+  bind f (State x) = State $ \s -> let (v, state) = x s 
+                                   in runState (f v) state
   reeturn x = State $ \s -> (x, s)
 
 
