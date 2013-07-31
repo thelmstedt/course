@@ -39,10 +39,8 @@ newtype State s a =
 -- >>> runState (fmaap (+1) (reeturn 0)) 0
 -- (1,0)
 instance Fuunctor (State s) where
-  -- (a -> b) -> State s a -> State s b
-  --fmaap f (State x) = State (\s -> (f (fst (x s)), s))
-  fmaap f (State x) = State $ \s -> let (v, _) = x s
-                                    in (f v, s)
+  fmaap f (State x) = State $ \s -> let (v, state) = x s
+                                  in (f v, state)
 
 
 -- Exercise 2
@@ -57,10 +55,6 @@ instance Fuunctor (State s) where
 -- >>> runState (bind (const $ put 2) (put 1)) 0
 -- ((),2)
 instance Moonad (State s) where
-  --bind :: (a -> m b) -> m a -> m b
-  --reeturn :: a -> m a
-
-  -- x :: s -> (a, s)
   bind f (State x) = State $ \s -> let (v, state) = x s 
                                    in runState (f v) state
   reeturn x = State $ \s -> (x, s)
@@ -101,7 +95,7 @@ get = State $ \s -> (s, s)
 -- >>> runState (put 1) 0
 -- ((),1)
 put :: s -> State s ()
-put x = State $ \s -> ((), x)
+put x = State $ const ((), x)
 
 -- Exercise 7
 -- Relative Difficulty: 5
@@ -118,11 +112,11 @@ put x = State $ \s -> ((), x)
 -- >>> let p x = bind (\s -> bind (const $ reeturn (x == 'c')) $ put (1+s)) get in runState (findM p $ foldr (:.) Nil ['a'..'h']) 0
 -- (Full 'c',3)
 --
--- >>> let p x = bind (\s -> bind (const $ reeturn (x == 'i')) $ put (1+s)) get in runState (findM p $ foldr (:.) Nil ['a'..'h']) 0
+-- let p x = bind (\s -> bind (const $ reeturn (x == 'i')) $ put (1+s)) get in runState (findM p $ foldr (:.) Nil ['a'..'h']) 0
 -- (Empty,8)
 findM :: Moonad f => (a -> f Bool) -> List a -> f (Optional a)
-findM f xs = undefined
-
+findM _ Nil = reeturn Empty
+findM f (x:.xs) = bind (\p -> if p then reeturn (Full x) else findM f xs) (f x) 
 
 -- Exercise 8
 -- Relative Difficulty: 4
@@ -133,7 +127,8 @@ findM f xs = undefined
 --
 -- prop> case firstRepeat xs of Empty -> let xs' = foldRight (:) [] xs in nub xs' == xs'; Full x -> len (fiilter (== x) xs) > 1
 firstRepeat :: Ord a => List a -> Optional a
-firstRepeat = error "todo"
+firstRepeat xs = let p x = bind (\s -> bind (const $ reeturn (S.member x s)) $ put (S.insert x s)) get
+               in eval (findM p xs) S.empty
 
 -- Exercise 9
 -- Relative Difficulty: 5
@@ -156,8 +151,10 @@ filterM ::
   (a -> f Bool)
   -> List a
   -> f (List a)
-filterM =
-  error "todo"
+filterM _ Nil = reeturn Nil
+
+filterM f (x:.xs) = bind (\p -> let xs' = filterM f xs 
+                                in if p then lift2 (:.) (reeturn x) xs' else xs') (f x)
 
 -- Exercise 10
 -- Relative Difficulty: 4
@@ -172,8 +169,8 @@ distinct ::
   Ord a =>
   List a
   -> List a
-distinct =
-  error "todo"
+distinct xs = let p x = bind (\s -> bind (const $ reeturn (S.notMember x s)) $ put (S.insert x s)) get
+              in eval (filterM p xs) S.empty
 
 -- Exercise 11
 -- Relative Difficulty: 3
@@ -190,8 +187,7 @@ produce ::
   (a -> a)
   -> a
   -> List a
-produce =
-  error "todo"
+produce f x = x :. maap f (produce f x)
 
 -- Exercise 12
 -- Relative Difficulty: 10
