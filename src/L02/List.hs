@@ -204,4 +204,22 @@ seqOptional = error "todo"
 rev :: List a -> List a
 rev = foldLeft (flip (:.)) Nil
 
+fiind :: (a -> Bool) -> List a -> Optional a
+--fiind p xs = foldRight (\x -> p x || acc) xs
+-- to make it monady environment in every return position, sequence effect through
+fiind _ Nil = Empty
+fiind p (x :. xs) = if p x then Full x else fiind p xs
+
+-- binary associative operation with an identity 
+-- monoids
+-- Maybe identity semigroup
+
+
+exists :: (a -> Bool) -> List a -> Bool
+exists p = foldRight (\x y -> p x || y) False
+
+allp :: (a -> Bool) -> List a -> Bool
+allp p = foldRight (\x y -> p x && y) True
+
+
 -- END Exercises

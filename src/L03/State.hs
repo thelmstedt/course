@@ -40,7 +40,7 @@ newtype State s a =
 -- (1,0)
 instance Fuunctor (State s) where
   fmaap f (State x) = State $ \s -> let (v, state) = x s
-                                  in (f v, state)
+                                    in (f v, state)
 
 
 -- Exercise 2
@@ -56,7 +56,8 @@ instance Fuunctor (State s) where
 -- ((),2)
 instance Moonad (State s) where
   bind f (State x) = State $ \s -> let (v, state) = x s 
-                                   in runState (f v) state
+                                       State s' = f v
+                                   in s' state
   reeturn x = State $ \s -> (x, s)
 
 
@@ -66,7 +67,7 @@ instance Moonad (State s) where
 --
 -- prop> \(Fun _ f) -> exec (State f) s == snd (runState (State f) s)
 exec :: State s a -> s -> s
-exec (State a) x = snd (a x)
+exec x = snd . runState x
 
 -- Exercise 4
 -- Relative Difficulty: 1
@@ -75,7 +76,7 @@ exec (State a) x = snd (a x)
 --
 -- prop> \(Fun _ f) -> eval (State f) s == fst (runState (State f) s)
 eval :: State s a -> s -> a
-eval (State s) a = fst (s a)
+eval x = fst . runState x
 
 -- Exercise 5
 -- Relative Difficulty: 2
