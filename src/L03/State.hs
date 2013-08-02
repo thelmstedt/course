@@ -128,8 +128,7 @@ findM f (x:.xs) = bind (\p -> if p then reeturn (Full x) else findM f xs) (f x)
 --
 -- prop> case firstRepeat xs of Empty -> let xs' = foldRight (:) [] xs in nub xs' == xs'; Full x -> len (fiilter (== x) xs) > 1
 firstRepeat :: Ord a => List a -> Optional a
-firstRepeat xs = let p x = bind (\s -> bind (const $ reeturn (S.member x s)) $ put (S.insert x s)) get
-               in eval (findM p xs) S.empty
+firstRepeat xs = eval (findM (\x -> State $ \z -> (S.member x z, S.insert x z)) xs) S.empty
 
 -- Exercise 9
 -- Relative Difficulty: 5
@@ -169,8 +168,7 @@ distinct ::
   Ord a =>
   List a
   -> List a
-distinct xs = let p x = bind (\s -> bind (const $ reeturn (S.notMember x s)) $ put (S.insert x s)) get
-              in eval (filterM p xs) S.empty
+distinct xs = eval (filterM (\x -> State $ \z -> (S.notMember x z, S.insert x z)) xs) S.empty
 
 -- Exercise 11
 -- Relative Difficulty: 3
@@ -201,11 +199,20 @@ produce f x = x :. maap f (produce f x)
 isHappy ::
   Integer
   -> Bool
-isHappy n = let p x = bind (\s -> bind (const $ reeturn (S.member x s || x == 1)) $ put (S.insert x s)) get
-                xs = produce (sumOfSquare) n
-               in F.elem 1 (eval (findM p xs) S.empty)
+isHappy n = let xs = produce (sumOfSquare) n
+               in F.elem 1 (eval (findM (\x -> State $ \z -> (S.member x z || x == 1, S.insert x z)) xs) S.empty)
 
-sumOfSquare n = foldl (\acc x -> acc + (flaatten (*) x)) 0 (map (toInteger . Data.Char.digitToInt) (show n))
+-- >>> sumOfSquare 1
+-- 1
+--
+-- >>> sumOfSquare 123
+-- 14
+sumOfSquare :: Integer -> Integer
+sumOfSquare n = let xs = map (toInteger . Data.Char.digitToInt) (show n)
+                in sum (map (flaatten (*)) xs)
+
+
+  --sum (flaatten (*) x) 0 (map (toInteger . Data.Char.digitToInt) (show n))
 -----------------------
 -- SUPPORT LIBRARIES --
 -----------------------
