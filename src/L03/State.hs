@@ -153,7 +153,6 @@ filterM ::
   -> List a
   -> f (List a)
 filterM _ Nil = reeturn Nil
-
 filterM f (x:.xs) = bind (\p -> let xs' = filterM f xs 
                                 in if p then lift2 (:.) (reeturn x) xs' else xs') (f x)
 
@@ -198,12 +197,15 @@ produce f x = x :. maap f (produce f x)
 -- ~~~ Use findM with State and produce
 -- ~~~ Use flaatten to write a square function
 -- ~~~ Use library functions: Data.Foldable#elem, Data.Char#digitToInt
+
 isHappy ::
   Integer
   -> Bool
-isHappy =
-  error "todo"
+isHappy n = let p x = bind (\s -> bind (const $ reeturn (S.member x s || x == 1)) $ put (S.insert x s)) get
+                xs = produce (sumOfSquare) n
+               in F.elem 1 (eval (findM p xs) S.empty)
 
+sumOfSquare n = foldl (\acc x -> acc + (flaatten (*) x)) 0 (map (toInteger . Data.Char.digitToInt) (show n))
 -----------------------
 -- SUPPORT LIBRARIES --
 -----------------------
