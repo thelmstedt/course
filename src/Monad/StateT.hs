@@ -26,17 +26,18 @@ newtype StateT s f a =
 -- | Implement the `Fuunctor` instance for @StateT s f@ given a @Fuunctor f@.
 instance Fuunctor f => Fuunctor (StateT s f) where
   -- (a -> b) -> f a -> f b
-  fmaap f (StateT x) = StateT $ \s -> fmaap (\z -> let (l,r) = z in (f l, r)) (x s) 
+  fmaap f (StateT x) = StateT $ \s -> fmaap (\z -> let (v,state) = z in (f v, state)) (x s) 
 
 -- Exercise 2
 -- Relative Difficulty: 5
 -- | Implement the `Moonad` instance for @StateT s g@ given a @Moonad f@.
 -- Make sure the state value is passed through in `bind`.
 instance Moonad f => Moonad (StateT s f) where
-  bind =
-    error "todo"
-  reeturn =
-    error "todo"
+  bind f (StateT x) = StateT $ \s -> let fas = x s
+                                     in bind (\y -> let (v, state) = y 
+                                                        StateT s' = f v
+                                                    in s' state) fas
+  reeturn x  = StateT $ \s -> reeturn (x, s)
 
 -- | A `State'` is `StateT` specialised to the `Id` functor.
 type State' s a =
