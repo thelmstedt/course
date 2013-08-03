@@ -5,11 +5,14 @@ license-File:       etc/LICENCE
 author:             Tony Morris <tmorris@tmorris.net>
 maintainer:         Tony Morris
 copyright:          Copyright (C) 2010-2013 Tony Morris
+copyright:          Copyright (C) 2012,2013 National ICT Australia Limited 2012, 2013
+copyright:          Copyright (C) 2012      James Earl Douglas
+copyright:          Copyright (C) 2012      Ben Sinclair
 synopsis:           Source code for a functional programming course
 category:           Education
 description:        Source code for a course in functional programming using Haskell
-homepage:           https://github.com/tonymorris/course
-bug-reports:        https://github.com/tonymorris/course/issues
+homepage:           https://github.com/NICTA/course
+bug-reports:        https://github.com/NICTA/course/issues
 cabal-version:      >= 1.10
 build-type:         Custom
 extra-source-files: etc/CONTRIBUTORS,
@@ -17,7 +20,7 @@ extra-source-files: etc/CONTRIBUTORS,
 
 source-repository   head
   type:             git
-  location:         git@github.com:tonymorris/course.git
+  location:         git@github.com:NICTA/course.git
 
 flag                small_base
   description:      Choose the new, split-up base package.
@@ -39,28 +42,28 @@ library
   hs-source-dirs:   src
 
   exposed-modules:  Course
-                    L01.Id
-                    L01.Optional
-                    L01.Validation
-                    L02.List
-                    L03.Fuunctor
-                    L03.Moonad
-                    L03.Interactive
-                    L03.State
-                    L03.StateT
-                    L04.ListZipper
-                    L05.Person
-                    L05.Parser
-                    L06.JsonValue
-                    L06.MoreParser
-                    L06.JsonParser
-                    L07.Anagrams
-                    L07.FastAnagrams
-                    L08.BKTree
-                    L08.EditDistance
-                    L08.MetricSpace
-                    L09.Compose
-                    L10.Cheque
+                    Algorithm.Anagrams
+                    Algorithm.Cheque
+                    Algorithm.EditDistance
+                    Algorithm.FastAnagrams
+                    Intro.Id
+                    Intro.Optional
+                    Intro.Validation
+                    IO.Interactive
+                    Monad.Compose
+                    Monad.Fuunctor
+                    Monad.Moonad
+                    Monad.State
+                    Monad.StateT
+                    Parser.JsonParser
+                    Parser.JsonValue
+                    Parser.MoreParser
+                    Parser.Parser
+                    Parser.Person
+                    Structure.BKTree
+                    Structure.List
+                    Structure.ListZipper
+                    Structure.MetricSpace
 
 test-suite          doctests
   type:
