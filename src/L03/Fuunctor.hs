@@ -2,7 +2,7 @@ module L03.Fuunctor where
 
 import L01.Id
 import L01.Optional
-import L01.Validation
+import L01.Validation()
 import L02.List
 
 class Fuunctor f where

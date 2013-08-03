@@ -5,9 +5,13 @@ import L01.Optional
 import L02.List
 import L03.Fuunctor
 import L03.Moonad
-import L03.State
-import qualified Data.Set as S
-import qualified Data.Foldable as F
+import L03.State()
+import qualified Data.Set as S()
+import qualified Data.Foldable as F()
+
+
+data Hole = Hole
+Hole = undefined
 
 -- A `StateT` is a function from a state value `s` to a functor f of (a produced value `a`, and a resulting state `s`).
 newtype StateT s f a =
@@ -21,8 +25,8 @@ newtype StateT s f a =
 -- Relative Difficulty: 2
 -- Implement the `Fuunctor` instance for `StateT s f` given a Fuunctor f.
 instance Fuunctor f => Fuunctor (StateT s f) where
-  fmaap =
-    error "todo"
+  -- (a -> b) -> f a -> f b
+  fmaap f (StateT x) = StateT $ \s -> fmaap (\z -> let (l,r) = z in (f l, r)) (x s) 
 
 -- Exercise 2
 -- Relative Difficulty: 5

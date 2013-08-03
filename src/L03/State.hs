@@ -10,10 +10,6 @@ import Data.Char
 import qualified Data.Set as S
 import qualified Data.Foldable as F
 
-
-data Hole = Hole
-Hole = undefined
-
 -- $setup
 -- >>> import Test.QuickCheck.Function
 -- >>> import Data.List(nub)
