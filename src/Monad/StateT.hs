@@ -49,8 +49,7 @@ type State' s a =
 state' ::
   (s -> (a, s))
   -> State' s a
-state' =
-  error "todo"
+state' f = StateT $ Id . f
 
 -- Exercise 4
 -- Relative Difficulty: 1
@@ -59,8 +58,7 @@ runState' ::
   State' s a
   -> s
   -> (a, s)
-runState' =
-  error "todo"
+runState' (StateT x) s = runId (x s) 
 
 -- Exercise 5
 -- Relative Difficulty: 2
@@ -70,8 +68,7 @@ execT ::
   StateT s f a
   -> s
   -> f s
-execT =
-  error "todo"
+execT (StateT x) s = fmaap snd (x s)
 
 -- Exercise 6
 -- Relative Difficulty: 1
@@ -80,8 +77,7 @@ exec' ::
   State' s a
   -> s
   -> s
-exec' =
-  error "todo"
+exec' (StateT x) = fmaap (snd . runId) x
 
 -- Exercise 7
 -- Relative Difficulty: 2
@@ -91,8 +87,7 @@ evalT ::
   StateT s f a
   -> s
   -> f a
-evalT =
-  error "todo"
+evalT (StateT x) s = fmaap fst (x s)
 
 -- Exercise 8
 -- Relative Difficulty: 1
@@ -101,8 +96,7 @@ eval' ::
   State' s a
   -> s
   -> a
-eval' =
-  error "todo"
+eval' (StateT x) = fmaap (fst . runId) x
 
 -- Exercise 9
 -- Relative Difficulty: 2
@@ -110,8 +104,7 @@ eval' =
 getT ::
   Moonad f =>
   StateT s f s
-getT =
-  error "todo"
+getT = StateT $ \s -> reeturn (s,s)
 
 -- Exercise 10
 -- Relative Difficulty: 2
@@ -120,20 +113,22 @@ putT ::
   Moonad f =>
   s
   -> StateT s f ()
-putT =
-  error "todo"
+putT x= StateT $ \_ -> reeturn ((), x)
 
 -- Exercise 11
 -- Relative Difficulty: 4
 -- | Remove all duplicate elements in a `List`.
 --
 -- /Tip:/ Use `filterM` and `State'` with a @Data.Set#Set@.
+--
+-- prop> firstRepeat (distinct' xs) == Empty
+--
+-- prop> distinct' xs == distinct' (flatMap (\x -> x :. x :. Nil) xs)
 distinct' ::
   (Ord a, Num a) =>
   List a
   -> List a
-distinct' =
-  error "todo"
+distinct' xs = eval' (filterM (\x -> state' $ \z -> (S.notMember x z, S.insert x z)) xs) S.empty
 
 -- Exercise 12
 -- Relative Difficulty: 5
@@ -142,12 +137,20 @@ distinct' =
 -- abort the computation by producing `Empty`.
 --
 -- /Tip:/ Use `filterM` and `StateT` over `Optional` with a @Data.Set#Set@.
+--
 distinctF ::
   (Ord a, Num a) =>
   List a
   -> Optional (List a)
-distinctF =
-  error "todo"
+distinctF xs = evalT
+                (
+                  filterM 
+                  (
+                    \x -> StateT $ \z -> if x > 100 then Empty else Full (S.notMember x z, S.insert x z)
+                  )
+                  xs
+                ) 
+               S.empty
 
 -- | An `OptionalT` is a functor of an `Optional` value.
 data OptionalT f a =
@@ -160,8 +163,8 @@ data OptionalT f a =
 -- Relative Difficulty: 3
 -- | Implement the `Fuunctor` instance for `OptionalT f` given a Fuunctor f.
 instance Fuunctor f => Fuunctor (OptionalT f) where
-  fmaap =
-    error "todo"
+  -- (a -> b) -> f a -> f b
+  fmaap f (OptionalT m) = undefined
 
 -- Exercise 14
 -- Relative Difficulty: 5
