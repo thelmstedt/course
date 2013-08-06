@@ -163,17 +163,18 @@ data OptionalT f a =
 -- Relative Difficulty: 3
 -- | Implement the `Fuunctor` instance for `OptionalT f` given a Fuunctor f.
 instance Fuunctor f => Fuunctor (OptionalT f) where
-  -- (a -> b) -> f a -> f b
-  fmaap f (OptionalT m) = undefined
+  fmaap f (OptionalT m) = OptionalT $ fmaap (mapOptional f) m
 
 -- Exercise 14
 -- Relative Difficulty: 5
 -- | Implement the `Moonad` instance for `OptionalT f` given a Moonad f.
 instance Moonad f => Moonad (OptionalT f) where
-  reeturn =
-    error "todo"
-  bind =
-    error "todo"
+  -- a -> m a
+  reeturn x = OptionalT $ reeturn (Full x)
+
+
+  bind f (OptionalT o) = OptionalT $ bind (\x -> case x of Empty -> reeturn Empty
+                                                           Full x' -> let (OptionalT o') = f x' in o') o
 
 -- | A `Logger` is a pair of a list of log values (`[l]`) and an arbitrary value (`a`).
 data Logger l a =
@@ -184,18 +185,17 @@ data Logger l a =
 -- Relative Difficulty: 4
 -- | Implement the `Fuunctor` instance for `Logger`.
 instance Fuunctor (Logger l) where
-  fmaap =
-    error "todo"
+  fmaap f (Logger x y) = Logger x (f y)
 
 -- Exercise 16
 -- Relative Difficulty: 5
 -- | Implement the `Moonad` instance for `Logger`.
 -- The `bind` implementation must append log values to maintain associativity.
 instance Moonad (Logger l) where
-  reeturn =
-    error "todo"
-  bind =
-    error "todo"
+  reeturn = Logger []
+
+  -- ( a -> m b) -> m a -> m b
+  bind f (Logger x y) = let (Logger _ y') = f y in Logger x y'
 
 -- Exercise 17
 -- Relative Difficulty: 1
@@ -204,8 +204,7 @@ log1 ::
   l
   -> a
   -> Logger l a
-log1 =
-  error "todo"
+log1 l = Logger[l]
 
 -- Exercise 18
 -- Relative Difficulty: 10
@@ -221,5 +220,4 @@ distinctG ::
   (Integral a, Show a) =>
   List a
   -> Logger String (Optional (List a))
-distinctG =
-  error "todo"
+distinctG xs = error "nfi"
