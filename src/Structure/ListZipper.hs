@@ -107,13 +107,16 @@ instance ListZipper' MaybeListZipper where
 -- Relative Difficulty: 2
 --
 -- | Convert the given zipper back to a list.
+--
+-- >>> toList (ListZipper [2,1,0] 3 [4,5,6])
+-- [0,1,2,3,4,5,6]
 toList ::
   ListZipper' f =>
   f a
   -> [a]
 toList z = let z' = toMaybeListZipper z 
            in case z' of (IsNotZ) -> []
-                         (IsZ (ListZipper l x r)) -> l ++ x :  r
+                         (IsZ (ListZipper l x r)) -> reverse l ++ x :  r
 
 
 -- Exercise 6
@@ -179,7 +182,7 @@ hasLeft ::
   f a
   -> Bool
 hasLeft z = case toMaybeListZipper z of 
-              (IsNotZ) -> False
+              IsNotZ -> False
               (IsZ (ListZipper l _ _)) -> not (null l)
 
 -- Exercise 9
@@ -197,8 +200,8 @@ hasRight ::
   f a
   -> Bool
 hasRight z = case toMaybeListZipper z of 
-              (IsNotZ) -> False
-              (IsZ (ListZipper _ _ r)) -> not (null r)
+              IsNotZ -> False
+              IsZ (ListZipper _ _ r) -> not (null r)
 
 -- Exercise 10
 -- Relative Difficulty: 3
@@ -209,16 +212,21 @@ hasRight z = case toMaybeListZipper z of
 -- prop> findLeft (const True) (fromList xs) == fromList xs
 --
 -- prop> case xs of [] -> findLeft (const False) IsNotZ == IsNotZ; (x:xs') -> findLeft (const False) (IsZ (ListZipper [] x xs')) == IsNotZ
+--
+-- >>> findLeft (==2)  (ListZipper [3,2,1,0] 4 [5,6,7])
+-- [1,0]⋙2⋘[3,4,5,6,7]
 findLeft ::
   ListZipper' f =>
   (a -> Bool)
   -> f a
   -> MaybeListZipper a
 findLeft p z = case toMaybeListZipper z of 
-                (IsNotZ) -> IsNotZ
-                (IsZ (ListZipper l x r)) | p x -> toMaybeListZipper z
-                                         | not (hasLeft z) -> IsNotZ
-                                         | otherwise -> findLeft p (ListZipper (init l) (last l) (x : r))
+                IsNotZ -> IsNotZ
+                IsZ (ListZipper l x r) | p x -> toMaybeListZipper z
+                                       | otherwise -> case break p l of 
+                                                        (_, []) -> IsNotZ
+                                                        -- why reverse here?
+                                                        (nm, xs) -> IsZ (ListZipper (reverse (tail xs)) (head xs) (nm ++ [x] ++ r))
                   
 
 -- Exercise 11
@@ -230,16 +238,20 @@ findLeft p z = case toMaybeListZipper z of
 -- prop> findRight (const True) (fromList xs) == fromList xs
 --
 -- prop> case xs of [] -> findRight (const False) IsNotZ == IsNotZ; (x:xs') -> findRight (const False) (IsZ (ListZipper [] x xs')) == IsNotZ
+--
+-- >>> findRight (==6)  (ListZipper [3,2,1,0] 4 [5,6,7])
+-- [5,4,3,2,1,0]⋙6⋘[7]
 findRight ::
   ListZipper' f =>
   (a -> Bool)
   -> f a
   -> MaybeListZipper a
 findRight p z = case toMaybeListZipper z of 
-                  (IsNotZ) -> IsNotZ
-                  (IsZ (ListZipper l x r)) | p x -> toMaybeListZipper z
-                                           | not (hasRight z) -> IsNotZ
-                                           | otherwise -> findRight p (ListZipper (l ++ [x]) (head r) (tail r))
+                  IsNotZ -> IsNotZ
+                  IsZ (ListZipper l x r) | p x -> toMaybeListZipper z
+                                         | otherwise -> case break p r of
+                                                          (_, []) -> IsNotZ
+                                                          (nm, xs) -> IsZ (ListZipper (reverse (nm ++ [x] ++ l)) (head xs) (tail xs))
 
 -- Exercise 12
 -- Relative Difficulty: 4
@@ -255,7 +267,11 @@ moveLeftLoop ::
   ListZipper' f =>
   f a
   -> f a
-moveLeftLoop z = error "todo"
+moveLeftLoop z = case toMaybeListZipper z of
+                   IsNotZ -> z
+                   IsZ (ListZipper [] x []) -> z
+                   IsZ (ListZipper [] x r) -> fromListZipper (ListZipper ((init r) ++ [x]) (last r) [])
+                   IsZ (ListZipper l x r) -> fromListZipper (ListZipper (init l) (last l) (x : r))
 
 -- Exercise 13
 -- Relative Difficulty: 4
