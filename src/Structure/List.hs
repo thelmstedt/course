@@ -45,16 +45,16 @@ foldLeft f b (h :. t) = let b' = f b h in b' `seq` foldLeft f b' t
 --
 -- | Returns the head of the list or the given default.
 --
--- >>> headOr (1 :. 2 :. Nil) 3
+-- >>> headOr 3 (1 :. 2 :. Nil)
 -- 1
 --
--- >>> headOr Nil 3
+-- >>> headOr 3 Nil
 -- 3
 --
--- prop> Nil `headOr` x == x
+-- prop> x `headOr` Nil == x
 headOr ::
-  List a
-  -> a
+  a
+  -> List a
   -> a
 headOr Nil x = x
 headOr (h :. _) _ = h
@@ -201,7 +201,7 @@ flatMap fs xs = flatten (maap fs xs)
 -- Elegance: 3.5 marks
 -- Total: 9
 --
--- | Apply a list of functions to a value to a list of results.
+-- | Convert a list of optional values to an optional list of values
 --
 -- >>> seqOptional (Full 1 :. Full 10 :. Nil)
 -- Full [1,10]
