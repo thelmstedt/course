@@ -5,6 +5,9 @@ module Structure.ListZipper where
 import Data.List
 import Monad.Fuunctor
 
+data Hole = Hole
+Hole = undefined
+
 -- $setup
 -- >>> import Data.Maybe(isNothing)
 
@@ -40,8 +43,9 @@ data MaybeListZipper a =
 -- >>> fmaap (+1) (ListZipper [3,2,1] 4 [5,6,7])
 -- [2,3,4]⋙5⋘[6,7,8]
 instance Fuunctor ListZipper where
-  fmaap =
-    error "todo"
+  -- fmaap :: (a -> b) -> f a -> f b
+  fmaap f (ListZipper l x r) = ListZipper (map f l) (f x) (map f r)
+    
 
 -- Exercise 2
 -- Relative Difficulty: 2
@@ -51,8 +55,8 @@ instance Fuunctor ListZipper where
 -- >>> fmaap (+1) (IsZ (ListZipper [3,2,1] 4 [5,6,7]))
 -- [2,3,4]⋙5⋘[6,7,8]
 instance Fuunctor MaybeListZipper where
-  fmaap =
-    error "todo"
+  fmaap _ IsNotZ = IsNotZ
+  fmaap f (IsZ x) = IsZ (fmaap f x)
 
 -- Exercise 3
 -- Relative Difficulty: 2
@@ -63,8 +67,8 @@ instance Fuunctor MaybeListZipper where
 fromList ::
   [a]
   -> MaybeListZipper a
-fromList =
-  error "todo"
+fromList [] = IsNotZ
+fromList xs = IsZ (ListZipper [] (head xs) (tail xs))
 
 -- Exercise 4
 -- Relative Difficulty: 2
@@ -75,8 +79,8 @@ fromList =
 toMaybe ::
   MaybeListZipper a
   -> Maybe (ListZipper a)
-toMaybe =
-  error "todo"
+toMaybe IsNotZ = Nothing
+toMaybe (IsZ x) = Just x
 
 -- The `ListZipper'` type-class that will permit overloading operations.
 class Fuunctor f => ListZipper' f where
@@ -107,8 +111,10 @@ toList ::
   ListZipper' f =>
   f a
   -> [a]
-toList =
-  error "todo"
+toList z = let z' = toMaybeListZipper z 
+           in case z' of (IsNotZ) -> []
+                         (IsZ (ListZipper l x r)) -> l ++ x :  r
+
 
 -- Exercise 6
 -- Relative Difficulty: 3
@@ -125,8 +131,9 @@ withFocus ::
   (a -> a)
   -> f a
   -> f a
-withFocus =
-  error "todo"
+withFocus f z = let z' = toMaybeListZipper z 
+                in case z' of (IsNotZ) -> z
+                              (IsZ (ListZipper l x r)) -> fromListZipper (ListZipper l (f x) r)
 
 -- Exercise 7
 -- Relative Difficulty: 2
@@ -144,8 +151,7 @@ setFocus ::
   a
   -> f a
   -> f a
-setFocus =
-  error "todo"
+setFocus x = withFocus (const x)
 
 -- A flipped infix alias for `setFocus`. This allows:
 --
@@ -172,8 +178,9 @@ hasLeft ::
   ListZipper' f =>
   f a
   -> Bool
-hasLeft =
-  error "todo"
+hasLeft z = case toMaybeListZipper z of 
+              (IsNotZ) -> False
+              (IsZ (ListZipper l _ _)) -> not (null l)
 
 -- Exercise 9
 -- Relative Difficulty: 2
@@ -189,8 +196,9 @@ hasRight ::
   ListZipper' f =>
   f a
   -> Bool
-hasRight =
-  error "todo"
+hasRight z = case toMaybeListZipper z of 
+              (IsNotZ) -> False
+              (IsZ (ListZipper _ _ r)) -> not (null r)
 
 -- Exercise 10
 -- Relative Difficulty: 3
@@ -206,8 +214,12 @@ findLeft ::
   (a -> Bool)
   -> f a
   -> MaybeListZipper a
-findLeft =
-  error "todo"
+findLeft p z = case toMaybeListZipper z of 
+                (IsNotZ) -> IsNotZ
+                (IsZ (ListZipper l x r)) | p x -> toMaybeListZipper z
+                                         | not (hasLeft z) -> IsNotZ
+                                         | otherwise -> findLeft p (ListZipper (init l) (last l) (x : r))
+                  
 
 -- Exercise 11
 -- Relative Difficulty: 3
@@ -223,8 +235,11 @@ findRight ::
   (a -> Bool)
   -> f a
   -> MaybeListZipper a
-findRight =
-  error "todo"
+findRight p z = case toMaybeListZipper z of 
+                  (IsNotZ) -> IsNotZ
+                  (IsZ (ListZipper l x r)) | p x -> toMaybeListZipper z
+                                           | not (hasRight z) -> IsNotZ
+                                           | otherwise -> findRight p (ListZipper (l ++ [x]) (head r) (tail r))
 
 -- Exercise 12
 -- Relative Difficulty: 4
@@ -240,8 +255,7 @@ moveLeftLoop ::
   ListZipper' f =>
   f a
   -> f a
-moveLeftLoop =
-  error "todo"
+moveLeftLoop z = error "todo"
 
 -- Exercise 13
 -- Relative Difficulty: 4

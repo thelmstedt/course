@@ -10,8 +10,7 @@ import Monad.State
 import qualified Data.Set as S
 import qualified Data.Foldable as F
 
-data Hole = Hole
-Hole = undefined
+
 
 -- | A `StateT` is a function from a state value `s` to a functor f of (a produced value `a`, and a resulting state `s`).
 newtype StateT s f a =
@@ -220,4 +219,4 @@ distinctG ::
   (Integral a, Show a) =>
   List a
   -> Logger String (Optional (List a))
-distinctG xs = error "nfi"
+distinctG xs = error "nfi" 
