@@ -56,8 +56,8 @@ headOr ::
   a
   -> List a
   -> a
-headOr Nil x = x
-headOr (h :. _) _ = h
+headOr x Nil= x
+headOr _ (h :. _)  = h
 
 
 -- Exercise 2
