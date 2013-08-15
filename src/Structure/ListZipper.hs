@@ -426,7 +426,7 @@ moveLeftN ::
 moveLeftN n z
   | n == 0 = toMaybeListZipper z
   | n > 0 = moveLeftN (n - 1) (moveLeft z)
-  | otherwise = moveLeftN (n + 1) (moveRight z)
+  | otherwise = moveRightN (abs n) z
 
 
 
@@ -464,6 +464,9 @@ moveRightN n z
 -- >>> moveLeftN' (-2) (ListZipper [3,2,1] 4 [5,6,7])
 -- Right [1,2,3,4,5]⋙6⋘[7]
 --
+-- >>> moveLeftN' (2) (ListZipper [3,2,1] 4 [5,6,7])
+-- Right [1]⋙2⋘[3,4,5,6,7]
+--
 -- >>> moveLeftN' (-4) (ListZipper [3,2,1] 4 [5,6,7])
 -- Left 3
 
@@ -479,7 +482,7 @@ moveLeftN' n z =
      (_, IsNotZ) -> Right z
      (True, IsZ (ListZipper l x r)) -> 
         if n <= length l 
-          then let (xs, ys) = splitAt n l in Right $ fromListZipper (ListZipper ys (head xs) (tail xs ++[x] ++r))
+          then let (xs, ys) = splitAt n l in Right $ fromListZipper (ListZipper ys (last xs) (init xs ++[x] ++r))
           else Left (length l)
      (False, _) -> moveRightN' (abs n) z
         
