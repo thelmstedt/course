@@ -223,11 +223,12 @@ findLeft ::
 findLeft p z = 
   case toMaybeListZipper z of 
     IsNotZ -> IsNotZ
-    IsZ (ListZipper l x r) | p x -> toMaybeListZipper z
-                           | otherwise -> case break p l of 
-                                            (_, []) -> IsNotZ
-                                            -- why reverse here?
-                                            (nm, xs) -> IsZ (ListZipper (reverse (tail xs)) (head xs) (nm ++ [x] ++ r))
+    IsZ (ListZipper l x r) 
+      | p x -> toMaybeListZipper z
+      | otherwise -> case break p l of 
+        (_, []) -> IsNotZ
+        -- why reverse here?
+        (nm, xs) -> IsZ (ListZipper (reverse (tail xs)) (head xs) (nm ++ [x] ++ r))
                   
 
 -- Exercise 11
@@ -250,10 +251,11 @@ findRight ::
 findRight p z = 
   case toMaybeListZipper z of 
     IsNotZ -> IsNotZ
-    IsZ (ListZipper l x r) | p x -> toMaybeListZipper z
-                           | otherwise -> case break p r of
-                                            (_, []) -> IsNotZ
-                                            (nm, xs) -> IsZ (ListZipper (reverse (nm ++ [x] ++ l)) (head xs) (tail xs))
+    IsZ (ListZipper l x r) 
+      | p x -> toMaybeListZipper z
+      | otherwise -> case break p r of
+                      (_, []) -> IsNotZ
+                      (nm, xs) -> IsZ (ListZipper (reverse (nm ++ [x] ++ l)) (head xs) (tail xs))
 
 -- Exercise 12
 -- Relative Difficulty: 4
@@ -461,11 +463,11 @@ moveRightN n z
 -- >>> moveLeftN' 0 (ListZipper [3,2,1] 4 [5,6,7])
 -- Right [1,2,3]⋙4⋘[5,6,7]
 --
--- >>> moveLeftN' (-2) (ListZipper [3,2,1] 4 [5,6,7])
--- Right [1,2,3,4,5]⋙6⋘[7]
---
 -- >>> moveLeftN' (2) (ListZipper [3,2,1] 4 [5,6,7])
 -- Right [1]⋙2⋘[3,4,5,6,7]
+--
+-- >>> moveLeftN' (-2) (ListZipper [3,2,1] 4 [5,6,7])
+-- Right [1,2,3,4,5]⋙6⋘[7]
 --
 -- >>> moveLeftN' (-4) (ListZipper [3,2,1] 4 [5,6,7])
 -- Left 3
@@ -476,16 +478,17 @@ moveLeftN' ::
   Int
   -> f a
   -> Either Int (f a)
-moveLeftN' n z = 
-  if n == 0 then Right z 
-    else case (n > 0, toMaybeListZipper z) of
-     (_, IsNotZ) -> Right z
-     (True, IsZ (ListZipper l x r)) -> 
-        if n <= length l 
-          then let (xs, ys) = splitAt n l in Right $ fromListZipper (ListZipper ys (last xs) (init xs ++[x] ++r))
-          else Left (length l)
-     (False, _) -> moveRightN' (abs n) z
-        
+moveLeftN' n z
+  | n == 0 = Right z
+  | n < 0 = moveRightN' (abs n) z
+  | otherwise = 
+      case toMaybeListZipper z of 
+        IsNotZ -> Right z
+        IsZ (ListZipper l _ _) ->
+          case moveLeftN n z of 
+              IsNotZ -> Left $ length l
+              IsZ z' -> Right $ fromListZipper z'
+          
 
 
 -- Exercise 23
@@ -512,15 +515,16 @@ moveRightN' ::
   Int
   -> f a
   -> Either Int (f a)
-moveRightN' n z = 
-  if n == 0 then Right z 
-    else case (n > 0, toMaybeListZipper z) of
-     (_, IsNotZ) -> Right z
-     (True, IsZ (ListZipper l x r)) -> 
-        if n <= length r 
-          then let (xs, ys) = splitAt n r in Right $ fromListZipper (ListZipper (init xs ++ [x] ++ l) (last xs) ys)
-          else Left (length r)
-     (False, _) -> moveLeftN' (abs n) z
+moveRightN' n z 
+  | n == 0 = Right z
+  | n < 0 = moveLeftN' (abs n) z
+  | otherwise = 
+      case toMaybeListZipper z of 
+        IsNotZ -> Right z
+        IsZ (ListZipper _ _ r) ->
+          case moveRightN n z of 
+              IsNotZ -> Left $ length r
+              IsZ z' -> Right $ fromListZipper z'
         
 -- Exercise 24
 -- Relative Difficulty: 7
@@ -539,8 +543,14 @@ nth ::
   Int
   -> f a
   -> MaybeListZipper a
-nth =
-  error "todo"
+nth n z =
+  case toMaybeListZipper z of
+    IsNotZ -> IsNotZ
+    IsZ (ListZipper l _ _) -> let i = length l in
+     if i == n then toMaybeListZipper z
+      else if n < i then moveLeftN (i - n) z
+      else moveRightN (n - i) z
+
 
 -- Exercise 25
 -- Relative Difficulty: 4
@@ -554,8 +564,9 @@ index ::
   ListZipper' f =>
   f a
   -> Maybe Int
-index =
-  error "todo"
+index z = case toMaybeListZipper z of
+  IsNotZ -> Nothing
+  IsZ (ListZipper l _ _) -> Just $ length l
 
 -- Exercise 26
 -- Relative Difficulty: 5
@@ -568,8 +579,12 @@ end ::
   ListZipper' f =>
   f a
   -> f a
-end =
-  error "todo"
+end z =
+  case toMaybeListZipper z of
+    IsNotZ -> z
+    IsZ (ListZipper _ _ []) -> z
+    IsZ (ListZipper l x [r]) -> fromListZipper $ ListZipper (x: l) r []
+    IsZ (ListZipper l x r) -> fromListZipper $ ListZipper (reverse (init r) ++ [x] ++ l) (last r) []
 
 -- Exercise 27
 -- Relative Difficulty: 5
@@ -581,9 +596,12 @@ start ::
   ListZipper' f =>
   f a
   -> f a
-start =
-  error "todo"
-
+start z = 
+  case toMaybeListZipper z of
+    IsNotZ -> z
+    IsZ (ListZipper [] _ _) -> z
+    IsZ (ListZipper [l] x r) -> fromListZipper $ ListZipper [] l (x : r)
+    IsZ (ListZipper l x r) -> fromListZipper $ ListZipper [] (last l) (reverse (init l) ++ [x] ++ r)
 -- Exercise 28
 -- Relative Difficulty: 5
 -- | Delete the current focus and pull the left values to take the empty position.
@@ -597,8 +615,11 @@ deletePullLeft ::
   ListZipper' f =>
   f a
   -> MaybeListZipper a
-deletePullLeft =
-  error "todo"
+deletePullLeft z = 
+  case toMaybeListZipper z of
+    IsNotZ -> toMaybeListZipper z
+    IsZ (ListZipper [l] x _) -> fromListZipper $ ListZipper [] l [x]
+    IsZ (ListZipper l x _) -> fromListZipper $ ListZipper [] (last l) (reverse (init l) ++ [x])
 
 -- Exercise 29
 -- Relative Difficulty: 5
