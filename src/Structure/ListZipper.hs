@@ -583,9 +583,9 @@ end z =
   case toMaybeListZipper z of
     IsNotZ -> z
     IsZ (ListZipper _ _ []) -> z
-    IsZ (ListZipper l x [r]) -> fromListZipper $ ListZipper (x: l) r []
-    IsZ (ListZipper l x r) -> fromListZipper $ ListZipper (reverse (init r) ++ [x] ++ l) (last r) []
-
+    IsZ (ListZipper l x r) -> 
+      let (h :t) = (reverse r ++ [x] ++ l) in
+       fromListZipper $ ListZipper t h []
 -- Exercise 27
 -- Relative Difficulty: 5
 -- | Move the focus to the start of the zipper.
@@ -600,8 +600,9 @@ start z =
   case toMaybeListZipper z of
     IsNotZ -> z
     IsZ (ListZipper [] _ _) -> z
-    IsZ (ListZipper [l] x r) -> fromListZipper $ ListZipper [] l (x : r)
-    IsZ (ListZipper l x r) -> fromListZipper $ ListZipper [] (last l) (reverse (init l) ++ [x] ++ r)
+    IsZ (ListZipper l x r) ->
+      let (h : t) = (reverse l ++ [x] ++ r) in
+        fromListZipper $ ListZipper [] h t
 -- Exercise 28
 -- Relative Difficulty: 5
 -- | Delete the current focus and pull the left values to take the empty position.
@@ -616,10 +617,10 @@ deletePullLeft ::
   f a
   -> MaybeListZipper a
 deletePullLeft z = 
-  case toMaybeListZipper z of
+  case toMaybeListZipper z of 
     IsNotZ -> toMaybeListZipper z
-    IsZ (ListZipper [l] x _) -> fromListZipper $ ListZipper [] l [x]
-    IsZ (ListZipper l x _) -> fromListZipper $ ListZipper [] (last l) (reverse (init l) ++ [x])
+    IsZ(ListZipper [] _ _) -> IsNotZ
+    IsZ(ListZipper (h:t) _ r) -> fromListZipper $ ListZipper t h r
 
 -- Exercise 29
 -- Relative Difficulty: 5
@@ -634,8 +635,12 @@ deletePullRight ::
   ListZipper' f =>
   f a
   -> MaybeListZipper a
-deletePullRight =
-  error "todo"
+deletePullRight z = 
+  case toMaybeListZipper z of 
+    IsNotZ -> toMaybeListZipper z
+    IsZ(ListZipper _ _ []) -> IsNotZ
+    IsZ(ListZipper l _ (h : t)) -> fromListZipper $ ListZipper l h t
+
 
 -- Exercise 30
 -- Relative Difficulty: 5
@@ -653,8 +658,10 @@ insertPushLeft ::
   a
   -> f a
   -> f a
-insertPushLeft =
-  error "todo"
+insertPushLeft x' z = 
+  case toMaybeListZipper z of 
+    IsNotZ -> z
+    IsZ(ListZipper l x r) -> fromListZipper $ ListZipper (x : l) x' r
 
 -- Exercise 31
 -- Relative Difficulty: 5
@@ -672,8 +679,10 @@ insertPushRight ::
   a
   -> f a
   -> f a
-insertPushRight =
-  error "todo"
+insertPushRight x' z = 
+  case toMaybeListZipper z of 
+    IsNotZ -> z
+    IsZ(ListZipper l x r) -> fromListZipper $ ListZipper l x' (x : r)
 
 -- Let's start using proper type-class names.
 --
@@ -722,8 +731,7 @@ instance Traversable [] where
 -- >>> ListZipper [(+2), (+10)] (*2) [(*3), (4*), (5+)] <*> ListZipper [3,2,1] 4 [5,6,7]
 -- [12,5]⋙8⋘[15,24,12]
 instance Apply ListZipper where
-  (<*>) =
-    error "todo"
+  (<*>) (ListZipper lf xf rf) (ListZipper l x r) = ListZipper (zipWith ($) lf l) (xf x) (zipWith ($) rf r)
 
 -- Exercise 33
 -- Relative Difficulty: 4
@@ -731,9 +739,11 @@ instance Apply ListZipper where
 --
 -- /Tip:/ Use `<*>` for `ListZipper`.
 instance Apply MaybeListZipper where
-  (<*>) =
-    error "todo"
-
+  (<*>) zf z =
+    case (zf, z) of
+      (IsNotZ, _) -> IsNotZ
+      (_, IsNotZ) -> IsNotZ
+      (IsZ zf', IsZ z') -> toMaybeListZipper $ zf' <*> z'
 -- Exercise 34
 -- Relative Difficulty: 5
 -- | Implement the `Applicative` instance for `ListZipper`.
@@ -741,8 +751,7 @@ instance Apply MaybeListZipper where
 --
 -- /Tip:/ Use @Data.List#repeat@.
 instance Applicative ListZipper where
-  unit =
-    error "todo"
+  unit x = ListZipper (repeat x) x (repeat x)
 
 -- Exercise 35
 -- Relative Difficulty: 4
@@ -750,8 +759,7 @@ instance Applicative ListZipper where
 --
 -- /Tip:/ Use @unit@ for `ListZipper`.
 instance Applicative MaybeListZipper where
-  unit =
-    error "todo"
+  unit x = IsZ (unit x)
 
 -- Exercise 36
 -- Relative Difficulty: 7
