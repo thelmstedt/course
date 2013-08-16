@@ -518,7 +518,7 @@ moveRightN' n z =
      (_, IsNotZ) -> Right z
      (True, IsZ (ListZipper l x r)) -> 
         if n <= length r 
-          then let (xs, ys) = splitAt (abs n) r in Right $ fromListZipper (ListZipper (init xs ++ [x] ++ l) (last xs) ys)
+          then let (xs, ys) = splitAt n r in Right $ fromListZipper (ListZipper (init xs ++ [x] ++ l) (last xs) ys)
           else Left (length r)
      (False, _) -> moveLeftN' (abs n) z
         
