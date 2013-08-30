@@ -9,7 +9,7 @@
 
 module Structure.List where
 
-import Control.Applicative
+--import Control.Applicative
 import Intro.Optional
 
 -- BEGIN Helper functions and data types

@@ -2,7 +2,7 @@ module Monad.Fuunctor where
 
 import Intro.Id
 import Intro.Optional
-import Intro.Validation
+--import Intro.Validation
 import Structure.List
 
 class Fuunctor f where

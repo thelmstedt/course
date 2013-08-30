@@ -5,8 +5,6 @@ module Structure.ListZipper where
 import Data.List
 import Monad.Fuunctor
 
-data Hole = Hole
-Hole = undefined
 
 -- $setup
 -- >>> import Data.Maybe(isNothing)

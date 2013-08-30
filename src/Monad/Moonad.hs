@@ -74,7 +74,7 @@ instance Moonad List where
 --
 -- prop> reeturn x == Full x
 instance Moonad Optional where
-  bind = flip bindOptional
+  bind = bindOptional
   reeturn = Full
 
 -- Exercise 10
