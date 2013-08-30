@@ -154,8 +154,7 @@ distinctF xs = evalT
 -- | An `OptionalT` is a functor of an `Optional` value.
 data OptionalT f a =
   OptionalT {
-    runOptionalT ::
-      f (Optional a)
+    runOptionalT :: f (Optional a)
   }
 
 -- Exercise 13
@@ -168,10 +167,7 @@ instance Fuunctor f => Fuunctor (OptionalT f) where
 -- Relative Difficulty: 5
 -- | Implement the `Moonad` instance for `OptionalT f` given a Moonad f.
 instance Moonad f => Moonad (OptionalT f) where
-  -- a -> m a
-  reeturn x = OptionalT $ reeturn (Full x)
-
-
+  reeturn x = OptionalT . reeturn . reeturn $ x
   bind f (OptionalT o) = OptionalT $ bind (\x -> case x of Empty -> reeturn Empty
                                                            Full x' -> let (OptionalT o') = f x' in o') o
 
@@ -192,9 +188,7 @@ instance Fuunctor (Logger l) where
 -- The `bind` implementation must append log values to maintain associativity.
 instance Moonad (Logger l) where
   reeturn = Logger []
-
-  -- ( a -> m b) -> m a -> m b
-  bind f (Logger x y) = let (Logger _ y') = f y in Logger x y'
+  bind f (Logger x y) = let (Logger x' y') = f y in Logger (x ++ x') y'
 
 -- Exercise 17
 -- Relative Difficulty: 1
@@ -219,4 +213,34 @@ distinctG ::
   (Integral a, Show a) =>
   List a
   -> Logger String (Optional (List a))
-distinctG xs = error "nfi" 
+distinctG xs = evalT
+                (
+                  filterM 
+                  (
+                    \x -> StateT $ \z -> undefined 
+                    )
+                  xs
+                ) 
+               S.empty
+
+-- >> :t \x y -> evalT (filterM x y)
+-- \x y -> evalT (filterM x y)
+  -- :: (Fuunctor f, Moonad f) =>
+     --(a -> StateT s f Bool) -> List a -> s -> f (List a)
+
+-- >> :t \x y -> runOptionalT . evalT (filterM x y)
+-- \x y -> runOptionalT . evalT (filterM x y)
+--  :: (Fuunctor f, Moonad f) =>
+--     (a1 -> StateT a (OptionalT f) Bool)
+--     -> List a1 -> a -> f (Optional (List a1))
+
+-- >> :t \x y -> runOptionalT . evalT (filterM x y) $ Data.Set.empty
+-- \x y -> runOptionalT . evalT (filterM x y) $ Data.Set.empty
+--  :: (Fuunctor f, Moonad f) =>
+--     (a
+--      -> StateT
+--           (containers-0.5.0.0:Data.Set.Base.Set a1) (OptionalT f) Bool)
+--     -> List a -> f (Optional (List a))
+-- >>
+
+
