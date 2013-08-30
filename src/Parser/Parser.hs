@@ -1,9 +1,12 @@
 module Parser.Parser where
 
 import Control.Applicative
-import Data.Char
-import Intro.Validation
+--import Data.Char
+--import Intro.Validation
 import Parser.Person
+
+data Hole = Hole
+Hole = undefined
 
 
 type Input = String
@@ -71,8 +74,7 @@ data Parser a = P {
 valueParser ::
   a
   -> Parser a
-valueParser =
-  error "todo"
+valueParser x = P $ \z -> Result z x
 
 -- Exercise 2
 -- | Return a parser that always fails with the given error.
@@ -81,8 +83,7 @@ valueParser =
 -- True
 failed ::
   Parser a
-failed =
-  error "todo"
+failed = P $ const Failed
 
 -- Exercise 3
 -- | Return a parser that succeeds with a character off the input or fails with an error if the input is empty.
@@ -94,8 +95,7 @@ failed =
 -- True
 character ::
   Parser Char
-character =
-  error "todo"
+character = P $ \x -> if null x then Failed else Result (tail x) (head x)
 
 -- Exercise 4
 -- | Return a parser that puts its input into the given parser and
@@ -125,8 +125,14 @@ bindParser ::
   Parser a
   -> (a -> Parser b)
   -> Parser b
-bindParser =
-  error "todo"
+bindParser p f = 
+  P $ \x -> bindResult (\i a -> let p' = f a in parse p' i) (parse p x)
+  
+
+--bindResult ::
+--  (Input -> a -> ParseResult b)
+--  -> ParseResult a
+--  -> ParseResult b
 
 -- Exercise 5
 -- | Return a parser that puts its input into the given parser and
@@ -147,8 +153,8 @@ bindParser =
   Parser a
   -> Parser b
   -> Parser b
-(>>>) =
-  error "todo"
+(>>>) p p' = 
+  P $ \x -> bindResult (\i _ -> parse p' i) (parse p x)
 
 -- Exercise 6
 -- | Return a parser that tries the first parser for a successful value.
@@ -172,8 +178,7 @@ bindParser =
   Parser a
   -> Parser a
   -> Parser a
-(|||) =
-  error "todo"
+(|||) l r = P $ \x -> let p' = parse l x in if isErrorResult p' then parse r x else p'
 
 infixl 3 |||
 
@@ -193,8 +198,7 @@ infixl 3 |||
 list ::
   Parser a
   -> Parser [a]
-list =
-  error "todo"
+list = error "whatever"
 
 -- Exercise 8
 -- | Return a parser that produces at least one value from the given parser then
